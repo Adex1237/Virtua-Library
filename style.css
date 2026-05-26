@@ -1,0 +1,126 @@
+header{
+    color: blueviole;
+}/* Configuración general y tipografía estilo moderna */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap');
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Poppins', sans-serif;
+}
+
+body {
+    background-color: #f8f9fa; /* Fondo gris muy claro para el sitio */
+}
+
+/* --- SECCIÓN DEL ENCABEZADO (HERO) --- */
+.hero-section {
+    background: linear-gradient(135deg, #a832ff 0%, #3b52ff 100%);
+    padding: 30px 50px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 25px;
+    color: white;
+}
+
+.header-title {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    align-self: flex-start; /* Alinea el título a la izquierda */
+    font-size: 24px;
+    font-weight: 600;
+}
+
+/* --- BARRA DE BÚSQUEDA --- */
+#search-container {
+    position: relative;
+    width: 100%;
+    max-width: 800px; /* Controla qué tan ancha es la barra */
+}
+
+#search-container input {
+    width: 100%;
+    padding: 15px 20px 15px 55px; /* Espacio izquierdo para que no pise la lupa */
+    border: none;
+    border-radius: 50px; /* Bordes completamente redondeados */
+    font-size: 16px;
+    outline: none;
+    background-color: white;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+}
+
+#search-container input::placeholder {
+    color: #a0a0a0;
+}
+
+.search-icon {
+    position: absolute;
+    left: 22px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #a0a0a0;
+    font-size: 18px;
+}
+
+/* --- BOTONES DE CATEGORÍAS --- */
+#categories {
+    display: flex;
+    justify-content: flex-start;
+    gap: 15px;
+    padding: 30px 50px;
+    overflow-x: auto; /* Por si agregas más, se puedan deslizar en móviles */
+}
+
+.btn-category {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background-color: #f1f3f7;
+    border: none;
+    border-radius: 14px;
+    padding: 12px 0px;
+    width: 110px; /* Ancho fijo para que se vean simétricos */
+    cursor: pointer;
+    transition: all 0.2s ease;
+    color: #333;
+}
+
+.btn-category i {
+    font-size: 20px;
+    margin-bottom: 8px;
+    color: #444;
+}
+
+.btn-text {
+    font-size: 13px;
+    font-weight: 500;
+    margin-bottom: 4px;
+}
+
+.badge {
+    font-size: 11px;
+    font-weight: 600;
+    color: #777;
+}
+
+/* --- ESTADO ACTIVO (Botón 'Todos' seleccionado) --- */
+.btn-category.active {
+    background-color: #a232ff;
+    color: white;
+    box-shadow: 0 4px 12px rgba(162, 50, 255, 0.3);
+}
+
+.btn-category.active i,
+.btn-category.active .badge {
+    color: white;
+}
+
+/* Efecto Hover para los botones genéricos */
+.btn-category:not(.active):hover {
+    background-color: #e4e8f0;
+    transform: translateY(-2px);
+}

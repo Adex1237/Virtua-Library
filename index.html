@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,56 +8,58 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
 
     <header class="hero-section">
         <div class="header-title">
-            <i class="fa-solid fa-bars-staggered"></i> <h3>Biblioteca Virtual</h3>
+            <i class="fa-solid fa-bars-staggered"></i>
+            <h3>Biblioteca Virtual</h3>
         </div>
-        
+
         <div id="search-container">
             <i class="fa-solid fa-magnifying-glass search-icon"></i>
             <input type="text" placeholder="Buscar archivos, documentos, videos, audios...">
         </div>
     </header>
-    
+
     <div id="categories">
         <button class="btn-category active">
             <i class="fa-solid fa-folder-open"></i>
             <span class="btn-text">Todos</span>
             <span class="badge">26</span>
         </button>
-        
+
         <button class="btn-category">
             <i class="fa-solid fa-file-lines"></i>
             <span class="btn-text">Documentos</span>
             <span class="badge">4</span>
         </button>
-        
+
         <button class="btn-category">
             <i class="fa-solid fa-video"></i>
             <span class="btn-text">Videos</span>
             <span class="badge">6</span>
         </button>
-        
+
         <button class="btn-category">
             <i class="fa-solid fa-music"></i>
             <span class="btn-text">Audio</span>
             <span class="badge">3</span>
         </button>
-        
+
         <button class="btn-category">
             <i class="fa-solid fa-image"></i>
             <span class="btn-text">Imágenes</span>
             <span class="badge">6</span>
         </button>
-        
+
         <button class="btn-category">
             <i class="fa-solid fa-gamepad"></i>
             <span class="btn-text">Juegos</span>
             <span class="badge">5</span>
         </button>
-        
+
         <button class="btn-category">
             <i class="fa-solid fa-ellipsis"></i>
             <span class="btn-text">Otros</span>
@@ -65,11 +68,19 @@
     </div>
 
     <div id="content">
-        <video controls width="100%">
-    <source src="https://drive.google.com/file/d/11VSnzC8H-PJcycXPgp3bKQXzfGCG399j/view?usp=drive_link" type="video/mp4">
-    Tu navegador no soporta la reproducción de video.
-</video>
+    <div class="video-card">
+        <iframe src="https://drive.google.com/file/d/11VSnzC8H-PJcycXPgp3bKQXzfGCG399j/preview" 
+                allow="autoplay" 
+                scrolling="no">
+        </iframe>
+
+        <div class="video-info">
+            <h4>No Tenemos Feria</h4>
+            <p>Categoría • Tamaño MB</p>
         </div>
+    </div>
+</div>
 
 </body>
+
 </html>

@@ -2,6 +2,7 @@
 const URL_API = "https://script.google.com/macros/s/AKfycbziXvFsUOWxO0luoU1YEx86qOV9KIrr7rW4PmIptemO6uvs2RgaihdSZBqMaCE9DCI25g/exec";
 
 const coloresCategorias = {
+    
     todos: "linear-gradient(135deg, #a832ff 0%, #3b52ff 100%)",
     documentos: "linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%)", 
     videos: "linear-gradient(135deg, #ff4b2b 0%, #ff416c 100%)",     

@@ -1,4 +1,5 @@
-const URL_API = "https://script.google.com/macros/s/AKfycbw0rOJmUCvbT7ZJqZuvqI82J05x6B2lBC3I9Bz0_zgIyVe7YgpoeODq3zrAWNEnqyb6ZA/exec";
+// REEMPLAZA CON TU NUEVA URL DE IMPLEMENTACIÓN DE APPS SCRIPT
+const URL_API = "https://script.google.com/macros/s/AKfycbziXvFsUOWxO0luoU1YEx86qOV9KIrr7rW4PmIptemO6uvs2RgaihdSZBqMaCE9DCI25g/exec";
 
 const coloresCategorias = {
     todos: "linear-gradient(135deg, #a832ff 0%, #3b52ff 100%)",
@@ -10,54 +11,83 @@ const coloresCategorias = {
     otros: "linear-gradient(135deg, #4158d0 0%, #c850c0 46%, #ffcc70 100%)" 
 };
 
-// Variables globales para recordar qué tiene seleccionado el usuario actualmente
+let baseDeDatosArchivos = [];
 let categoriaActual = "todos";
 let textoBusquedaActual = "";
 
-async function actualizarContadores() {
-  try {
-    const respuesta = await fetch(URL_API);
-    const datos = await respuesta.json();
+// Carga la información desde tu Google Apps Script
+async function cargarDatosDesdeDrive() {
+    const contenedor = document.getElementById("content");
+    contenedor.innerHTML = "<p style='color: #777; padding: 20px; grid-column: 1/-1; text-align: center;'>Conectando con Google Drive...</p>";
 
-    document.getElementById("badge-todos").textContent = datos.todos;
-    document.getElementById("badge-documentos").textContent = datos.documentos;
-    document.getElementById("badge-videos").textContent = datos.videos;
-    document.getElementById("badge-audio").textContent = datos.audio;
-    document.getElementById("badge-imagenes").textContent = datos.imagenes;
-    document.getElementById("badge-juegos").textContent = datos.juegos;
-    document.getElementById("badge-otros").textContent = datos.otros;
+    try {
+        const respuesta = await fetch(URL_API);
+        const datos = await respuesta.json();
 
-  } catch (error) {
-    console.error("Error al conectar con la API de Drive:", error);
-  }
+        // Guardamos los archivos globales devueltos por el script
+        baseDeDatosArchivos = datos.archivos;
+
+        // Actualizamos las burbujas (badges) usando la nueva estructura de contadores
+        document.getElementById("badge-todos").textContent = datos.contadores.todos;
+        document.getElementById("badge-documentos").textContent = datos.contadores.documentos;
+        document.getElementById("badge-videos").textContent = datos.contadores.videos;
+        document.getElementById("badge-audio").textContent = datos.contadores.audio;
+        document.getElementById("badge-imagenes").textContent = datos.contadores.imagenes;
+        document.getElementById("badge-juegos").textContent = datos.contadores.juegos;
+        document.getElementById("badge-otros").textContent = datos.contadores.otros;
+
+        // Pintamos las tarjetas
+        renderizarTarjetas();
+
+    } catch (error) {
+        console.error("Error al conectar con la API de Drive:", error);
+        contenedor.innerHTML = "<p style='color: red; padding: 20px; grid-column: 1/-1; text-align: center;'>Error al cargar los archivos de Google Drive.</p>";
+    }
 }
 
-// --- FUNCIÓN MAESTRA ENCARGADA DE MOSTRAR / OCULTAR TARJETAS ---
-// Evalúa al mismo tiempo la categoría activa y lo que se escribió en el buscador
-function aplicarFiltrosCombinados() {
-    const tarjetas = document.querySelectorAll(".video-card");
+// Renderiza dinámicamente el contenido filtrado en pantalla
+function renderizarTarjetas() {
+    const contenedor = document.getElementById("content");
+    contenedor.innerHTML = ""; 
 
-    tarjetas.forEach(tarjeta => {
-        const categoriaTarjeta = tarjeta.getAttribute("data-category");
-        // Obtenemos el texto del h4 de la tarjeta, pasándolo a minúsculas para que no importen las mayúsculas
-        const tituloTarjeta = tarjeta.querySelector(".video-info h4").textContent.toLowerCase();
+    // Filtrado en vivo según categoría y barra de búsqueda
+    const archivosFiltrados = baseDeDatosArchivos.filter(archivo => {
+        const cumpleCategoria = (categoriaActual === "todos" || archivo.categoria === categoriaActual);
+        const cumpleBusqueda = archivo.nombre.toLowerCase().includes(textoBusquedaActual.toLowerCase());
+        return cumpleCategoria && cumpleBusqueda;
+    });
 
-        // Condición 1: ¿Satisface la categoría?
-        const cumpleCategoria = (categoriaActual === "todos" || categoriaTarjeta === categoriaActual);
+    if (archivosFiltrados.length === 0) {
+        contenedor.innerHTML = "<p style='color: #777; padding:20px; grid-column: 1/-1; text-align:center;'>No se encontraron archivos en esta sección.</p>";
+        return;
+    }
+
+    archivosFiltrados.forEach(archivo => {
+        const card = document.createElement("div");
+        card.className = "video-card";
+        card.setAttribute("data-category", archivo.categoria);
+
+        const urlPreview = `https://drive.google.com/file/d/${archivo.id}/preview`;
+        let elementoVisual = `<iframe src="${urlPreview}" allow="autoplay" scrolling="no"></iframe>`;
         
-        // Condición 2: ¿El título incluye lo que escribió el usuario?
-        const cumpleBusqueda = tituloTarjeta.includes(textoBusquedaActual.toLowerCase());
-
-        // Si cumple ambas condiciones, se muestra; si no, se oculta
-        if (cumpleCategoria && cumpleBusqueda) {
-            tarjeta.style.display = "block";
-        } else {
-            tarjeta.style.display = "none";
+        // Optimización visual si el archivo es una imagen
+        if (archivo.categoria === "imagenes") {
+            const urlImagen = `https://drive.google.com/uc?export=view&id=${archivo.id}`;
+            elementoVisual = `<img src="${urlImagen}" alt="${archivo.nombre}" style="width:100%; height:180px; object-fit:cover; border-radius:16px 16px 0 0;">`;
         }
+
+        card.innerHTML = `
+            ${elementoVisual}
+            <div class="video-info">
+                <h4>${archivo.nombre}</h4>
+                <p>${archivo.categoria.toUpperCase()} • ${archivo.tamano}</p>
+            </div>
+        `;
+        contenedor.appendChild(card);
     });
 }
 
-// Controla los clics en los botones de categorías
+// Inicializa clicks de categorías
 function inicializarFiltros() {
     const botones = document.querySelectorAll(".btn-category");
     const header = document.getElementById("hero-header");
@@ -66,76 +96,56 @@ function inicializarFiltros() {
         boton.addEventListener("click", () => {
             categoriaActual = boton.getAttribute("data-category");
 
-            // Cambiar estado activo visual del botón
             botones.forEach(b => b.classList.remove("active"));
             boton.classList.add("active");
 
-            // Cambiar el color de fondo del buscador/header
             if (coloresCategorias[categoriaActual]) {
                 header.style.background = coloresCategorias[categoriaActual];
                 document.documentElement.style.setProperty('--color-activo', coloresCategorias[categoriaActual]);
             }
 
-            // Ejecutar el filtro
-            aplicarFiltrosCombinados();
+            renderizarTarjetas();
         });
     });
 }
 
-// --- NUEVA FUNCIÓN: Escucha lo que el usuario escribe en la barra ---
+// Inicializa barra de búsqueda en tiempo real
 function inicializarBusqueda() {
-    // Buscamos el input que está dentro de #search-container
     const inputBusqueda = document.querySelector("#search-container input");
-
-    // El evento 'input' se dispara inmediatamente cada vez que el usuario presiona una tecla, borra o pega texto
     inputBusqueda.addEventListener("input", (evento) => {
-        textoBusquedaActual = evento.target.value; // Guardamos lo que se escribió
-        
-        // Ejecutar el filtro combinando la categoría y la nueva letra escrita
-        aplicarFiltrosCombinados();
+        textoBusquedaActual = evento.target.value;
+        renderizarTarjetas();
     });
 }
 
-// Ejecución al cargar el documento
-document.addEventListener("DOMContentLoaded", () => {
-    actualizarContadores();
-    inicializarFiltros();
-    inicializarBusqueda(); // <--- Activamos la barra de búsqueda
-});
-
-// --- NUEVA FUNCIÓN: Control del Modo Oscuro ---
+// Inicializa Modo Oscuro persistente
 function inicializarModoOscuro() {
     const botonToggle = document.getElementById("dark-mode-toggle");
     const iconoBoton = botonToggle.querySelector("i");
     const cuerpo = document.body;
 
-    // 1. Verificar si el usuario ya tenía el modo oscuro activado anteriormente
     const modoOscuroGuardado = localStorage.getItem("modo-oscuro");
-    
     if (modoOscuroGuardado === "activado") {
         cuerpo.classList.add("dark-mode");
-        iconoBoton.classList.replace("fa-moon", "fa-sun"); // Cambia a icono de sol
+        iconoBoton.classList.replace("fa-moon", "fa-sun");
     }
 
-    // 2. Escuchar el evento click para alternar el modo
     botonToggle.addEventListener("click", () => {
         cuerpo.classList.toggle("dark-mode");
-        
-        // Si el body ahora tiene la clase dark-mode
         if (cuerpo.classList.contains("dark-mode")) {
             iconoBoton.classList.replace("fa-moon", "fa-sun");
-            localStorage.setItem("modo-oscuro", "activado"); // Guardar preferencia
+            localStorage.setItem("modo-oscuro", "activado");
         } else {
             iconoBoton.classList.replace("fa-sun", "fa-moon");
-            localStorage.setItem("modo-oscuro", "desactivado"); // Guardar preferencia
+            localStorage.setItem("modo-oscuro", "desactivado");
         }
     });
 }
 
-// Modificamos el listener final para arrancar la nueva función
+// Arranca todo cuando el documento esté listo
 document.addEventListener("DOMContentLoaded", () => {
-    actualizarContadores();
+    cargarDatosDesdeDrive();
     inicializarFiltros();
     inicializarBusqueda();
-    inicializarModoOscuro(); // <--- Activamos el modo oscuro aquí
+    inicializarModoOscuro();
 });

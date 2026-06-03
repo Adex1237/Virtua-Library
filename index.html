@@ -19,9 +19,15 @@
                 <h3>Biblioteca Virtual</h3>
             </div>
             
-            <button id="dark-mode-toggle" aria-label="Cambiar modo de color">
-                <i class="fa-solid fa-moon"></i>
-            </button>
+            <div class="header-actions">
+                <button id="auth-modal-trigger" aria-label="Iniciar Sesión" title="Acceder de la cuenta">
+                    <i class="fa-solid fa-user-gear"></i>
+                    <span>Ingresar</span>
+                </button>
+                <button id="dark-mode-toggle" aria-label="Cambiar modo de color">
+                    <i class="fa-solid fa-moon"></i>
+                </button>
+            </div>
         </div>
 
         <div id="search-container">
@@ -74,17 +80,69 @@
         </button>
     </div>
 
-    <div id="content">
+    <div id="content"></div>
+
+    <div id="video-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <div class="video-container"></div>
         </div>
     </div>
 
-    <div id="video-modal" class="modal">
-    <div class="modal-content">
-        <span class="close-modal">&times;</span>
-        <div class="video-container">
+    <div id="login-modal" class="auth-modal">
+        <div class="auth-modal-content">
+            <span class="close-auth-modal" id="close-login">&times;</span>
+            <div class="auth-header">
+                <i class="fa-solid fa-bars-staggered auth-logo"></i>
+                <h2>Iniciar Sesión</h2>
+                <p>Accede a tu panel de la Biblioteca Virtual</p>
             </div>
+            <form onsubmit="event.preventDefault();">
+                <div class="auth-input-group">
+                    <i class="fa-solid fa-user"></i>
+                    <input type="text" placeholder="Nombre de usuario o correo">
+                </div>
+                <div class="auth-input-group">
+                    <i class="fa-solid fa-lock"></i>
+                    <input type="password" placeholder="Contraseña">
+                </div>
+                <button type="submit" class="btn-auth-submit">Ingresar</button>
+            </form>
+            <div class="auth-footer">
+                <p>¿No tienes una cuenta? <a href="#" id="go-to-register">Regístrate aquí</a></p>
+            </div>
+        </div>
     </div>
-</div>
+
+    <div id="register-modal" class="auth-modal">
+        <div class="auth-modal-content">
+            <span class="close-auth-modal" id="close-register">&times;</span>
+            <div class="auth-header">
+                <i class="fa-solid fa-user-plus auth-logo"></i>
+                <h2>Crear Cuenta</h2>
+                <p>Regístrate para obtener tu acceso personalizado</p>
+            </div>
+            <form onsubmit="event.preventDefault();">
+                <div class="auth-input-group">
+                    <i class="fa-solid fa-user"></i>
+                    <input type="text" placeholder="Elige un usuario">
+                </div>
+                <div class="auth-input-group">
+                    <i class="fa-solid fa-envelope"></i>
+                    <input type="email" placeholder="Correo electrónico">
+                </div>
+                <div class="auth-input-group">
+                    <i class="fa-solid fa-lock"></i>
+                    <input type="password" placeholder="Crea una contraseña">
+                </div>
+                <button type="submit" class="btn-auth-submit">Registrarse</button>
+            </form>
+            <div class="auth-footer">
+                <p>¿Ya tienes cuenta? <a href="#" id="go-to-login">Inicia Sesión</a></p>
+            </div>
+        </div>
+    </div>
+
     <script src="script.js"></script>
 </body>
 </html>

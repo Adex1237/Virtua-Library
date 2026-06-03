@@ -150,3 +150,110 @@ document.addEventListener("DOMContentLoaded", () => {
     inicializarBusqueda();
     inicializarModoOscuro();
 });
+
+// Carga Video.js en la ventana global
+let player = null; 
+
+function renderizarTarjetas() {
+    const contenedor = document.getElementById("content");
+    contenedor.innerHTML = ""; 
+
+    const archivosFiltrados = baseDeDatosArchivos.filter(archivo => {
+        const cumpleCategoria = (categoriaActual === "todos" || archivo.categoria === categoriaActual);
+        const cumpleBusqueda = archivo.nombre.toLowerCase().includes(textoBusquedaActual.toLowerCase());
+        return cumpleCategoria && cumpleBusqueda;
+    });
+
+    if (archivosFiltrados.length === 0) {
+        contenedor.innerHTML = "<p style='color: #777; padding:20px; grid-column: 1/-1; text-align:center;'>No se encontraron archivos en esta sección.</p>";
+        return;
+    }
+
+    archivosFiltrados.forEach(archivo => {
+        const card = document.createElement("div");
+        card.className = "video-card";
+        card.setAttribute("data-category", archivo.categoria);
+        card.style.cursor = "pointer"; // Indica que es clickeable
+
+        let elementoVisual = "";
+        
+        if (archivo.categoria === "imagenes") {
+            const urlImagen = `https://drive.google.com/uc?export=view&id=${archivo.id}`;
+            elementoVisual = `<img src="${urlImagen}" alt="${archivo.nombre}" style="width:100%; height:180px; object-fit:cover; border-radius:16px 16px 0 0;">`;
+        } else if (archivo.categoria === "videos") {
+            // Miniatura elegante para el video en vez de cargar el iframe pesado
+            elementoVisual = `
+                <div style="width:100%; height:180px; background:#1e1e1e; display:flex; align-items:center; justify-content:center; border-radius:16px 16px 0 0; position:relative;">
+                    <i class="fa-solid fa-circle-play" style="font-size: 50px; color: #ff4b2b; z-index:2;"></i>
+                    <div style="position:absolute; width:100%; height:100%; background: linear-gradient(transparent, rgba(0,0,0,0.7));"></div>
+                </div>`;
+        } else {
+            // El resto de archivos (Documentos, audios, etc.) pueden seguir usando el preview por ahora
+            const urlPreview = `https://drive.google.com/file/d/${archivo.id}/preview`;
+            elementoVisual = `<iframe src="${urlPreview}" scrolling="no"></iframe>`;
+        }
+
+        card.innerHTML = `
+            ${elementoVisual}
+            <div class="video-info">
+                <h4>${archivo.nombre}</h4>
+                <p>${archivo.categoria.toUpperCase()} • ${archivo.tamano}</p>
+            </div>
+        `;
+
+        // Evento para abrir el reproductor flotante si es un video
+        if (archivo.categoria === "videos") {
+            card.addEventListener("click", () => abrirReproductorVideo(archivo.id, archivo.nombre));
+        }
+
+        contenedor.appendChild(card);
+    });
+}
+
+// Función para controlar la ventana flotante y Video.js
+function abrirReproductorVideo(idArchivo, nombreVideo) {
+    const modal = document.getElementById("video-modal");
+    const container = modal.querySelector(".video-container");
+    
+    // En vez de etiqueta <video>, metemos el iframe de Drive con la interfaz limpia
+    // Usamos /preview para que Drive ponga sus propios controles responsivos
+    container.innerHTML = `
+        <iframe src="https://drive.google.com/file/d/${idArchivo}/preview" 
+                style="width:100%; height:100%; border:none;" 
+                allow="autoplay; encrypted-media" 
+                allowfullscreen>
+        </iframe>
+    `;
+
+    // Mostramos el modal
+    modal.style.display = "flex";
+}
+
+// Cerrar el Modal de manera limpia
+function inicializarEventosModal() {
+    const modal = document.getElementById("video-modal");
+    const botonCerrar = modal.querySelector(".close-modal");
+
+    const cerrar = () => {
+        modal.style.display = "none";
+        if (player) {
+            player.pause(); // Pausa el video al cerrar
+        }
+    };
+
+    botonCerrar.addEventListener("click", cerrar);
+    modal.addEventListener("click", (e) => {
+        if (e.target === modal) cerrar();
+    });
+}
+
+// No olvides añadir `inicializarEventosModal()` dentro de tu Listener 'DOMContentLoaded' al final del archivo script.js
+
+// Arranca todo cuando el documento esté listo
+document.addEventListener("DOMContentLoaded", () => {
+    cargarDatosDesdeDrive();
+    inicializarFiltros();
+    inicializarBusqueda();
+    inicializarModoOscuro();
+    inicializarEventosModal(); // <--- ASEGÚRATE DE QUE ESTA LÍNEA ESTÉ AQUÍ
+});

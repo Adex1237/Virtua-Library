@@ -1,8 +1,6 @@
-// REEMPLAZA CON TU NUEVA URL DE IMPLEMENTACIÓN DE APPS SCRIPT
 const URL_API = "https://script.google.com/macros/s/AKfycbziXvFsUOWxO0luoU1YEx86qOV9KIrr7rW4PmIptemO6uvs2RgaihdSZBqMaCE9DCI25g/exec";
 
 const coloresCategorias = {
-    
     todos: "linear-gradient(135deg, #a832ff 0%, #3b52ff 100%)",
     documentos: "linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%)", 
     videos: "linear-gradient(135deg, #ff4b2b 0%, #ff416c 100%)",     
@@ -15,6 +13,7 @@ const coloresCategorias = {
 let baseDeDatosArchivos = [];
 let categoriaActual = "todos";
 let textoBusquedaActual = "";
+let player = null; 
 
 // Carga la información desde tu Google Apps Script
 async function cargarDatosDesdeDrive() {
@@ -25,10 +24,8 @@ async function cargarDatosDesdeDrive() {
         const respuesta = await fetch(URL_API);
         const datos = await respuesta.json();
 
-        // Guardamos los archivos globales devueltos por el script
         baseDeDatosArchivos = datos.archivos;
 
-        // Actualizamos las burbujas (badges) usando la nueva estructura de contadores
         document.getElementById("badge-todos").textContent = datos.contadores.todos;
         document.getElementById("badge-documentos").textContent = datos.contadores.documentos;
         document.getElementById("badge-videos").textContent = datos.contadores.videos;
@@ -37,7 +34,6 @@ async function cargarDatosDesdeDrive() {
         document.getElementById("badge-juegos").textContent = datos.contadores.juegos;
         document.getElementById("badge-otros").textContent = datos.contadores.otros;
 
-        // Pintamos las tarjetas
         renderizarTarjetas();
 
     } catch (error) {
@@ -51,7 +47,6 @@ function renderizarTarjetas() {
     const contenedor = document.getElementById("content");
     contenedor.innerHTML = ""; 
 
-    // Filtrado en vivo según categoría y barra de búsqueda
     const archivosFiltrados = baseDeDatosArchivos.filter(archivo => {
         const cumpleCategoria = (categoriaActual === "todos" || archivo.categoria === categoriaActual);
         const cumpleBusqueda = archivo.nombre.toLowerCase().includes(textoBusquedaActual.toLowerCase());
@@ -67,14 +62,22 @@ function renderizarTarjetas() {
         const card = document.createElement("div");
         card.className = "video-card";
         card.setAttribute("data-category", archivo.categoria);
+        card.style.cursor = "pointer";
 
-        const urlPreview = `https://drive.google.com/file/d/${archivo.id}/preview`;
-        let elementoVisual = `<iframe src="${urlPreview}" allow="autoplay" scrolling="no"></iframe>`;
+        let elementoVisual = "";
         
-        // Optimización visual si el archivo es una imagen
         if (archivo.categoria === "imagenes") {
             const urlImagen = `https://drive.google.com/uc?export=view&id=${archivo.id}`;
             elementoVisual = `<img src="${urlImagen}" alt="${archivo.nombre}" style="width:100%; height:180px; object-fit:cover; border-radius:16px 16px 0 0;">`;
+        } else if (archivo.categoria === "videos") {
+            elementoVisual = `
+                <div style="width:100%; height:180px; background:#1e1e1e; display:flex; align-items:center; justify-content:center; border-radius:16px 16px 0 0; position:relative;">
+                    <i class="fa-solid fa-circle-play" style="font-size: 50px; color: #ff4b2b; z-index:2;"></i>
+                    <div style="position:absolute; width:100%; height:100%; background: linear-gradient(transparent, rgba(0,0,0,0.7)); border-radius:16px 16px 0 0;"></div>
+                </div>`;
+        } else {
+            const urlPreview = `https://drive.google.com/file/d/${archivo.id}/preview`;
+            elementoVisual = `<iframe src="${urlPreview}" scrolling="no"></iframe>`;
         }
 
         card.innerHTML = `
@@ -84,11 +87,44 @@ function renderizarTarjetas() {
                 <p>${archivo.categoria.toUpperCase()} • ${archivo.tamano}</p>
             </div>
         `;
+
+        if (archivo.categoria === "videos") {
+            card.addEventListener("click", () => abrirReproductorVideo(archivo.id, archivo.nombre));
+        }
+
         contenedor.appendChild(card);
     });
 }
 
-// Inicializa clicks de categorías
+function abrirReproductorVideo(idArchivo, nombreVideo) {
+    const modal = document.getElementById("video-modal");
+    const container = modal.querySelector(".video-container");
+    
+    container.innerHTML = `
+        <iframe src="https://drive.google.com/file/d/${idArchivo}/preview" 
+                style="width:100%; height:100%; border:none;" 
+                allow="autoplay; encrypted-media" 
+                allowfullscreen>
+        </iframe>
+    `;
+    modal.style.display = "flex";
+}
+
+function inicializarEventosModal() {
+    const modal = document.getElementById("video-modal");
+    const botonCerrar = modal.querySelector(".close-modal");
+
+    const cerrar = () => {
+        modal.style.display = "none";
+        modal.querySelector(".video-container").innerHTML = ""; // Vacía el iframe para parar el audio del video
+    };
+
+    botonCerrar.addEventListener("click", cerrar);
+    modal.addEventListener("click", (e) => {
+        if (e.target === modal) cerrar();
+    });
+}
+
 function inicializarFiltros() {
     const botones = document.querySelectorAll(".btn-category");
     const header = document.getElementById("hero-header");
@@ -110,7 +146,6 @@ function inicializarFiltros() {
     });
 }
 
-// Inicializa barra de búsqueda en tiempo real
 function inicializarBusqueda() {
     const inputBusqueda = document.querySelector("#search-container input");
     inputBusqueda.addEventListener("input", (evento) => {
@@ -119,22 +154,30 @@ function inicializarBusqueda() {
     });
 }
 
-// Inicializa Modo Oscuro persistente
+// MODO OSCURO (CORREGIDO Y REPARADO)
 function inicializarModoOscuro() {
     const botonToggle = document.getElementById("dark-mode-toggle");
     const iconoBoton = botonToggle.querySelector("i");
     const cuerpo = document.body;
 
     const modoOscuroGuardado = localStorage.getItem("modo-oscuro");
+    
+    // Verificación inicial
     if (modoOscuroGuardado === "activado") {
         cuerpo.classList.add("dark-mode");
         iconoBoton.classList.replace("fa-moon", "fa-sun");
+    } else {
+        cuerpo.classList.remove("dark-mode");
+        iconoBoton.classList.replace("fa-sun", "fa-moon");
     }
 
     botonToggle.addEventListener("click", () => {
         cuerpo.classList.toggle("dark-mode");
+        
+        // Alternar de forma segura basándonos en si la clase existe o no tras el toggle
         if (cuerpo.classList.contains("dark-mode")) {
             iconoBoton.classList.replace("fa-moon", "fa-sun");
+            localStorage.setItem("modo-oscuro", "activated");
             localStorage.setItem("modo-oscuro", "activado");
         } else {
             iconoBoton.classList.replace("fa-sun", "fa-moon");
@@ -143,117 +186,54 @@ function inicializarModoOscuro() {
     });
 }
 
-// Arranca todo cuando el documento esté listo
-document.addEventListener("DOMContentLoaded", () => {
-    cargarDatosDesdeDrive();
-    inicializarFiltros();
-    inicializarBusqueda();
-    inicializarModoOscuro();
-});
-
-// Carga Video.js en la ventana global
-let player = null; 
-
-function renderizarTarjetas() {
-    const contenedor = document.getElementById("content");
-    contenedor.innerHTML = ""; 
-
-    const archivosFiltrados = baseDeDatosArchivos.filter(archivo => {
-        const cumpleCategoria = (categoriaActual === "todos" || archivo.categoria === categoriaActual);
-        const cumpleBusqueda = archivo.nombre.toLowerCase().includes(textoBusquedaActual.toLowerCase());
-        return cumpleCategoria && cumpleBusqueda;
-    });
-
-    if (archivosFiltrados.length === 0) {
-        contenedor.innerHTML = "<p style='color: #777; padding:20px; grid-column: 1/-1; text-align:center;'>No se encontraron archivos en esta sección.</p>";
-        return;
-    }
-
-    archivosFiltrados.forEach(archivo => {
-        const card = document.createElement("div");
-        card.className = "video-card";
-        card.setAttribute("data-category", archivo.categoria);
-        card.style.cursor = "pointer"; // Indica que es clickeable
-
-        let elementoVisual = "";
-        
-        if (archivo.categoria === "imagenes") {
-            const urlImagen = `https://drive.google.com/uc?export=view&id=${archivo.id}`;
-            elementoVisual = `<img src="${urlImagen}" alt="${archivo.nombre}" style="width:100%; height:180px; object-fit:cover; border-radius:16px 16px 0 0;">`;
-        } else if (archivo.categoria === "videos") {
-            // Miniatura elegante para el video en vez de cargar el iframe pesado
-            elementoVisual = `
-                <div style="width:100%; height:180px; background:#1e1e1e; display:flex; align-items:center; justify-content:center; border-radius:16px 16px 0 0; position:relative;">
-                    <i class="fa-solid fa-circle-play" style="font-size: 50px; color: #ff4b2b; z-index:2;"></i>
-                    <div style="position:absolute; width:100%; height:100%; background: linear-gradient(transparent, rgba(0,0,0,0.7));"></div>
-                </div>`;
-        } else {
-            // El resto de archivos (Documentos, audios, etc.) pueden seguir usando el preview por ahora
-            const urlPreview = `https://drive.google.com/file/d/${archivo.id}/preview`;
-            elementoVisual = `<iframe src="${urlPreview}" scrolling="no"></iframe>`;
-        }
-
-        card.innerHTML = `
-            ${elementoVisual}
-            <div class="video-info">
-                <h4>${archivo.nombre}</h4>
-                <p>${archivo.categoria.toUpperCase()} • ${archivo.tamano}</p>
-            </div>
-        `;
-
-        // Evento para abrir el reproductor flotante si es un video
-        if (archivo.categoria === "videos") {
-            card.addEventListener("click", () => abrirReproductorVideo(archivo.id, archivo.nombre));
-        }
-
-        contenedor.appendChild(card);
-    });
-}
-
-// Función para controlar la ventana flotante y Video.js
-function abrirReproductorVideo(idArchivo, nombreVideo) {
-    const modal = document.getElementById("video-modal");
-    const container = modal.querySelector(".video-container");
+// NUEVA FUNCIÓN: Control visual de Ventanas de Autenticación
+function inicializarModalesAuth() {
+    const loginModal = document.getElementById("login-modal");
+    const registerModal = document.getElementById("register-modal");
+    const btnAbrirLogin = document.getElementById("auth-modal-trigger");
     
-    // En vez de etiqueta <video>, metemos el iframe de Drive con la interfaz limpia
-    // Usamos /preview para que Drive ponga sus propios controles responsivos
-    container.innerHTML = `
-        <iframe src="https://drive.google.com/file/d/${idArchivo}/preview" 
-                style="width:100%; height:100%; border:none;" 
-                allow="autoplay; encrypted-media" 
-                allowfullscreen>
-        </iframe>
-    `;
+    const btnCerrarLogin = document.getElementById("close-login");
+    const btnCerrarRegister = document.getElementById("close-register");
+    
+    const linkARegistro = document.getElementById("go-to-register");
+    const linkALogin = document.getElementById("go-to-login");
 
-    // Mostramos el modal
-    modal.style.display = "flex";
-}
+    // Abrir login principal
+    btnAbrirLogin.addEventListener("click", () => {
+        loginModal.style.display = "flex";
+    });
 
-// Cerrar el Modal de manera limpia
-function inicializarEventosModal() {
-    const modal = document.getElementById("video-modal");
-    const botonCerrar = modal.querySelector(".close-modal");
+    // Cerrar ventanas individuales
+    btnCerrarLogin.addEventListener("click", () => loginModal.style.display = "none");
+    btnCerrarRegister.addEventListener("click", () => registerModal.style.display = "none");
 
-    const cerrar = () => {
-        modal.style.display = "none";
-        if (player) {
-            player.pause(); // Pausa el video al cerrar
-        }
-    };
+    // Intercambio entre modales (Ir a registrarse)
+    linkARegistro.addEventListener("click", (e) => {
+        e.preventDefault();
+        loginModal.style.display = "none";
+        registerModal.style.display = "flex";
+    });
 
-    botonCerrar.addEventListener("click", cerrar);
-    modal.addEventListener("click", (e) => {
-        if (e.target === modal) cerrar();
+    // Intercambio entre modales (Ir a iniciar sesión)
+    linkALogin.addEventListener("click", (e) => {
+        e.preventDefault();
+        registerModal.style.display = "none";
+        loginModal.style.display = "flex";
+    });
+
+    // Cerrar haciendo clic afuera del recuadro blanco
+    window.addEventListener("click", (e) => {
+        if (e.target === loginModal) loginModal.style.display = "none";
+        if (e.target === registerModal) registerModal.style.display = "none";
     });
 }
 
-// No olvides añadir `inicializarEventosModal()` dentro de tu Listener 'DOMContentLoaded' al final del archivo script.js
-
-// Arranca todo cuando el documento esté listo
+// Inicializador único al cargar el DOM
 document.addEventListener("DOMContentLoaded", () => {
     cargarDatosDesdeDrive();
     inicializarFiltros();
     inicializarBusqueda();
     inicializarModoOscuro();
-    inicializarEventosModal(); // <--- ASEGÚRATE DE QUE ESTA LÍNEA ESTÉ AQUÍ
+    inicializarEventosModal();
+    inicializarModalesAuth(); // <--- Arrancamos las ventanas de Login/Registro
 });

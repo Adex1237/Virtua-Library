@@ -464,6 +464,10 @@ body.dark-mode .auth-footer {
     text-decoration: underline;
 }
 
+/* ==========================================================================
+   NUEVOS ESTILOS MUDADOS DESDE EL HTML (PROYECTO ORDENADO)
+   ========================================================================== */
+
 /* Contenedor del perfil y menú desplegable */
 .user-menu-container {
     position: relative;

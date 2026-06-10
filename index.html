@@ -1,295 +1,144 @@
 <!DOCTYPE html>
-
 <html lang="es">
-
-
-
 <head>
-
     <meta charset="UTF-8">
-
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
     <title>Biblioteca Virtual</title>
-
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
     <link href="https://vjs.zencdn.net/8.10.0/video-js.css" rel="stylesheet" />
-
     <link rel="stylesheet" href="style.css">
-
 </head>
-
-
-
 <body>
-
-
-
     <header class="hero-section" id="hero-header">
-
         <div class="header-top">
-
             <div class="header-title">
-
                 <i class="fa-solid fa-bars-staggered"></i>
-
                 <h3>Biblioteca Virtual</h3>
-
             </div>
-
-            
 
             <div class="header-actions">
-
                 <button id="auth-modal-trigger" aria-label="Iniciar Sesión" title="Acceder a la cuenta">
-
                     <i class="fa-solid fa-user-gear"></i>
-
                     <span>Ingresar</span>
-
                 </button>
-
                 <button id="dark-mode-toggle" aria-label="Cambiar modo de color">
-
                     <i class="fa-solid fa-moon"></i>
-
                 </button>
-
             </div>
-
         </div>
-
-
 
         <div id="search-container">
-
             <i class="fa-solid fa-magnifying-glass search-icon"></i>
-
             <input type="text" placeholder="Buscar archivos, documentos, videos, audios...">
-
         </div>
-
     </header>
 
-
-
     <div id="categories">
-
         <button class="btn-category active" data-category="todos">
-
             <i class="fa-solid fa-folder-open"></i>
-
             <span class="btn-text">Todos</span>
-
             <span class="badge" id="badge-todos">...</span> 
-
         </button>
-
-
 
         <button class="btn-category" data-category="documentos">
-
             <i class="fa-solid fa-file-lines"></i>
-
             <span class="btn-text">Documentos</span>
-
             <span class="badge" id="badge-documentos">...</span>
-
         </button>
-
-
 
         <button class="btn-category" data-category="videos">
-
             <i class="fa-solid fa-video"></i>
-
             <span class="btn-text">Videos</span>
-
             <span class="badge" id="badge-videos">...</span>
-
         </button>
-
-
 
         <button class="btn-category" data-category="audio">
-
             <i class="fa-solid fa-music"></i>
-
             <span class="btn-text">Audio</span>
-
             <span class="badge" id="badge-audio">...</span>
-
         </button>
-
-
 
         <button class="btn-category" data-category="imagenes">
-
             <i class="fa-solid fa-image"></i>
-
             <span class="btn-text">Imágenes</span>
-
             <span class="badge" id="badge-imagenes">...</span>
-
         </button>
-
-
 
         <button class="btn-category" data-category="juegos">
-
             <i class="fa-solid fa-gamepad"></i>
-
             <span class="btn-text">Juegos</span>
-
             <span class="badge" id="badge-juegos">...</span>
-
         </button>
-
-
 
         <button class="btn-category" data-category="otros">
-
             <i class="fa-solid fa-ellipsis"></i>
-
             <span class="btn-text">Otros</span>
-
             <span class="badge" id="badge-otros">...</span>
-
         </button>
-
     </div>
-
-
-
     <div id="content"></div>
 
-
-
     <div id="video-modal" class="modal">
-
         <div class="modal-content">
-
             <span class="close-modal">&times;</span>
-
             <div class="video-container"></div>
-
         </div>
-
     </div>
-
-
 
     <div id="login-modal" class="auth-modal">
-
         <div class="auth-modal-content">
-
             <span class="close-auth-modal" id="close-login">&times;</span>
-
             <div class="auth-header">
-
                 <i class="fa-solid fa-bars-staggered auth-logo"></i>
-
                 <h2>Iniciar Sesión</h2>
-
                 <p>Accede a tu panel de la Biblioteca Virtual</p>
-
             </div>
-
             <form>
-
                 <div class="auth-input-group">
-
                     <i class="fa-solid fa-user"></i>
-
                     <input type="text" placeholder="Nombre de usuario" required autocomplete="username">
-
                 </div>
-
                 <div class="auth-input-group">
-
                     <i class="fa-solid fa-lock"></i>
-
                     <input type="password" placeholder="Contraseña" required autocomplete="current-password">
-
                 </div>
-
                 <button type="submit" class="btn-auth-submit">Ingresar</button>
-
             </form>
-
             <div class="auth-footer">
-
                 <p>¿No tienes una cuenta? <a href="#" id="go-to-register">Regístrate aquí</a></p>
-
             </div>
-
         </div>
-
     </div>
-
-
 
     <div id="register-modal" class="auth-modal">
-
         <div class="auth-modal-content">
-
             <span class="close-auth-modal" id="close-register">&times;</span>
-
             <div class="auth-header">
-
                 <i class="fa-solid fa-user-plus auth-logo"></i>
-
                 <h2>Crear Cuenta</h2>
-
                 <p>Regístrate para obtener tu acceso personalizado</p>
-
             </div>
-
             <form>
-
                 <div class="auth-input-group">
-
                     <i class="fa-solid fa-user"></i>
-
                     <input type="text" placeholder="Elige un usuario" required autocomplete="username">
-
                 </div>
-
                 <div class="auth-input-group">
-
                     <i class="fa-solid fa-envelope"></i>
-
                     <input type="email" placeholder="Correo electrónico" required autocomplete="email">
-
                 </div>
-
                 <div class="auth-input-group">
-
                     <i class="fa-solid fa-lock"></i>
-
                     <input type="password" placeholder="Crea una contraseña" required autocomplete="new-password">
-
                 </div>
-
                 <button type="submit" class="btn-auth-submit">Registrarse</button>
-
             </form>
-
             <div class="auth-footer">
-
                 <p>¿Ya tienes cuenta? <a href="#" id="go-to-login">Inicia Sesión</a></p>
-
             </div>
-
         </div>
-
     </div>
 
-
-
     <script src="script.js"></script>
-
 </body>
-
 </html>

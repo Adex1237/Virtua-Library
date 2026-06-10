@@ -7,7 +7,7 @@ const coloresCategorias = {
     todos: "linear-gradient(135deg, #7300e6 0%, #a832ff 100%)",
     documentos: "linear-gradient(135deg, #1e3c72 0%, #2a52be 100%)", 
     videos: "linear-gradient(135deg, #ff4b2b 0%, #ff416c 100%)",      
-    audio: "linear-gradient(135deg, #00c6ff 0%, #0072ff 100%)",       
+    audio: "linear-gradient(135deg, #0b5345 0%, #117a65 100%)",       
     imagenes: "linear-gradient(135deg, #2193b0 0%, #6dd5ed 100%)",    
     juegos: "linear-gradient(135deg, #f857a6 0%, #ff5858 100%)",    
     otros: "linear-gradient(135deg, #4158d0 0%, #c850c0 46%, #ffcc70 100%)",

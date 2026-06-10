@@ -20,10 +20,18 @@
             </div>
             
             <div class="header-actions">
-                <button id="auth-modal-trigger" aria-label="Iniciar Sesión" title="Acceder a la cuenta">
-                    <i class="fa-solid fa-user-gear"></i>
-                    <span>Ingresar</span>
-                </button>
+                <div class="user-menu-container">
+                    <button id="auth-modal-trigger" aria-label="Iniciar Sesión" title="Acceder a la cuenta">
+                        <i class="fa-solid fa-user-gear"></i>
+                        <span>Ingresar</span>
+                    </button>
+                    <div id="logout-dropdown" class="dropdown-content">
+                        <a href="#" id="btn-cerrar-sesion">
+                            <i class="fa-solid fa-right-from-bracket"></i>Cerrar Sesión
+                        </a>
+                    </div>
+                </div>
+                
                 <button id="dark-mode-toggle" aria-label="Cambiar modo de color">
                     <i class="fa-solid fa-moon"></i>
                 </button>
@@ -74,8 +82,8 @@
         </button>
         
         <button class="btn-category" data-category="agregar" id="btn-modulo-agregar">
-            <i class="fa-solid fa-circle-plus" style="color: #38ef7d;"></i>
-            <span class="btn-text" style="font-weight: 600;">Agregar</span>
+            <i class="fa-solid fa-circle-plus icon-agregar"></i>
+            <span class="btn-text text-agregar">Agregar</span>
             <span class="badge">+</span>
         </button>
     </div>

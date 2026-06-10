@@ -1,4 +1,7 @@
-const URL_API = "https://script.google.com/macros/s/AKfycbziXvFsUOWxO0luoU1YEx86qOV9KIrr7rW4PmIptemO6uvs2RgaihdSZBqMaCE9DCI25g/exec";
+// ====== CONFIGURACIÓN DE APIS SEPARADAS ======
+const URL_API_ARCHIVOS = "https://script.google.com/macros/s/AKfycbziXvFsUOWxO0luoU1YEx86qOV9KIrr7rW4PmIptemO6uvs2RgaihdSZBqMaCE9DCI25g/exec"; 
+const URL_BACKEND_BASH = "http://localhost:8585";
+// =============================================
 
 const coloresCategorias = {
     todos: "linear-gradient(135deg, #a832ff 0%, #3b52ff 100%)",
@@ -7,7 +10,8 @@ const coloresCategorias = {
     audio: "linear-gradient(135deg, #11998e 0%, #38ef7d 100%)",     
     imagenes: "linear-gradient(135deg, #2193b0 0%, #6dd5ed 100%)",  
     juegos: "linear-gradient(135deg, #f857a6 0%, #ff5858 100%)",    
-    otros: "linear-gradient(135deg, #4158d0 0%, #c850c0 46%, #ffcc70 100%)" 
+    otros: "linear-gradient(135deg, #4158d0 0%, #c850c0 46%, #ffcc70 100%)",
+    agregar: "linear-gradient(135deg, #11998e 0%, #1ee596 100%)"
 };
 
 let baseDeDatosArchivos = [];
@@ -15,13 +19,13 @@ let categoriaActual = "todos";
 let textoBusquedaActual = "";
 let player = null; 
 
-// Carga la información desde tu Google Apps Script
+// Carga archivos desde tu script de Drive original
 async function cargarDatosDesdeDrive() {
     const contenedor = document.getElementById("content");
     contenedor.innerHTML = "<p style='color: #777; padding: 20px; grid-column: 1/-1; text-align: center;'>Conectando con Google Drive...</p>";
 
     try {
-        const respuesta = await fetch(URL_API);
+        const respuesta = await fetch(URL_API_ARCHIVOS); 
         const datos = await respuesta.json();
 
         baseDeDatosArchivos = datos.archivos;
@@ -42,10 +46,15 @@ async function cargarDatosDesdeDrive() {
     }
 }
 
-// Renderiza dinámicamente el contenido filtrado en pantalla
 function renderizarTarjetas() {
     const contenedor = document.getElementById("content");
     contenedor.innerHTML = ""; 
+
+    // Si el usuario da clic en "Agregar", mostramos un mensaje temporal en lo que programas el formulario
+    if (categoriaActual === "agregar") {
+        contenedor.innerHTML = "<p style='color: #777; padding:20px; grid-column: 1/-1; text-align:center;'>Aquí se mostrará el formulario para subir nuevos archivos a Google Drive.</p>";
+        return;
+    }
 
     const archivosFiltrados = baseDeDatosArchivos.filter(archivo => {
         const cumpleCategoria = (categoriaActual === "todos" || archivo.categoria === categoriaActual);
@@ -116,7 +125,7 @@ function inicializarEventosModal() {
 
     const cerrar = () => {
         modal.style.display = "none";
-        modal.querySelector(".video-container").innerHTML = ""; // Vacía el iframe para parar el audio del video
+        modal.querySelector(".video-container").innerHTML = ""; 
     };
 
     botonCerrar.addEventListener("click", cerrar);
@@ -154,7 +163,7 @@ function inicializarBusqueda() {
     });
 }
 
-// MODO OSCURO (CORREGIDO Y REPARADO)
+// CORRECCIÓN DEL MODO OSCURO (INTERCAMBIO REPARADO)
 function inicializarModoOscuro() {
     const botonToggle = document.getElementById("dark-mode-toggle");
     const iconoBoton = botonToggle.querySelector("i");
@@ -162,7 +171,6 @@ function inicializarModoOscuro() {
 
     const modoOscuroGuardado = localStorage.getItem("modo-oscuro");
     
-    // Verificación inicial
     if (modoOscuroGuardado === "activado") {
         cuerpo.classList.add("dark-mode");
         iconoBoton.classList.replace("fa-moon", "fa-sun");
@@ -174,10 +182,8 @@ function inicializarModoOscuro() {
     botonToggle.addEventListener("click", () => {
         cuerpo.classList.toggle("dark-mode");
         
-        // Alternar de forma segura basándonos en si la clase existe o no tras el toggle
         if (cuerpo.classList.contains("dark-mode")) {
             iconoBoton.classList.replace("fa-moon", "fa-sun");
-            localStorage.setItem("modo-oscuro", "activated");
             localStorage.setItem("modo-oscuro", "activado");
         } else {
             iconoBoton.classList.replace("fa-sun", "fa-moon");
@@ -186,7 +192,47 @@ function inicializarModoOscuro() {
     });
 }
 
-// NUEVA FUNCIÓN: Control visual de Ventanas de Autenticación
+// Envío seguro de credenciales a tu servidor en Bash
+async function ejecutarAutenticacion(payload) {
+    try {
+        const respuesta = await fetch(URL_BACKEND_BASH, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+        const resultado = await respuesta.json();
+        
+        if (resultado.estatus === "ok") {
+            if (payload.accion === "login") {
+                localStorage.setItem("sesion-usuario", resultado.usuario);
+                localStorage.setItem("sesion-rol", resultado.rol); 
+                alert("¡Bienvenido " + resultado.usuario + "!");
+                aplicarRestriccionesDeModulo();
+                document.getElementById("login-modal").style.display = "none";
+            } else {
+                alert("¡Registro exitoso! Ya puedes iniciar sesión.");
+                document.getElementById("register-modal").style.display = "none";
+                document.getElementById("login-modal").style.display = "flex";
+            }
+        } else {
+            alert(resultado.mensaje);
+        }
+    } catch (err) {
+        console.error("Error al conectar con el cifrador Bash:", err);
+        alert("Error de conexión con el servidor de autenticación local.");
+    }
+}
+
+// Algoritmo de Restricción de Módulos
+function aplicarRestriccionesDeModulo() {
+    const botonesCategorias = document.querySelectorAll(".btn-category");
+    
+    botonesCategorias.forEach(boton => {
+        // Forzamos a que todos los botones se muestren siempre en formato flex
+        boton.style.display = "flex"; 
+    });
+}
+
 function inicializarModalesAuth() {
     const loginModal = document.getElementById("login-modal");
     const registerModal = document.getElementById("register-modal");
@@ -198,42 +244,52 @@ function inicializarModalesAuth() {
     const linkARegistro = document.getElementById("go-to-register");
     const linkALogin = document.getElementById("go-to-login");
 
-    // Abrir login principal
-    btnAbrirLogin.addEventListener("click", () => {
-        loginModal.style.display = "flex";
-    });
-
-    // Cerrar ventanas individuales
+    btnAbrirLogin.addEventListener("click", () => loginModal.style.display = "flex");
     btnCerrarLogin.addEventListener("click", () => loginModal.style.display = "none");
     btnCerrarRegister.addEventListener("click", () => registerModal.style.display = "none");
 
-    // Intercambio entre modales (Ir a registrarse)
     linkARegistro.addEventListener("click", (e) => {
-        e.preventDefault();
-        loginModal.style.display = "none";
-        registerModal.style.display = "flex";
+        e.preventDefault(); loginModal.style.display = "none"; registerModal.style.display = "flex";
     });
-
-    // Intercambio entre modales (Ir a iniciar sesión)
     linkALogin.addEventListener("click", (e) => {
-        e.preventDefault();
-        registerModal.style.display = "none";
-        loginModal.style.display = "flex";
+        e.preventDefault(); registerModal.style.display = "none"; loginModal.style.display = "flex";
     });
 
-    // Cerrar haciendo clic afuera del recuadro blanco
+    // Captura del Formulario de Login
+    loginModal.querySelector("form").addEventListener("submit", (e) => {
+        e.preventDefault();
+        const inputs = loginModal.querySelectorAll("input");
+        ejecutarAutenticacion({
+            accion: "login",
+            usuario: inputs[0].value.trim(),
+            password: inputs[1].value
+        });
+    });
+
+    // Captura del Formulario de Registro
+    registerModal.querySelector("form").addEventListener("submit", (e) => {
+        e.preventDefault();
+        const inputs = registerModal.querySelectorAll("input");
+        ejecutarAutenticacion({
+            accion: "registro",
+            usuario: inputs[0].value.trim(),
+            correo: inputs[1].value.trim(),
+            password: inputs[2].value
+        });
+    });
+
     window.addEventListener("click", (e) => {
         if (e.target === loginModal) loginModal.style.display = "none";
         if (e.target === registerModal) registerModal.style.display = "none";
     });
 }
 
-// Inicializador único al cargar el DOM
 document.addEventListener("DOMContentLoaded", () => {
     cargarDatosDesdeDrive();
     inicializarFiltros();
     inicializarBusqueda();
     inicializarModoOscuro();
     inicializarEventosModal();
-    inicializarModalesAuth(); // <--- Arrancamos las ventanas de Login/Registro
+    inicializarModalesAuth();
+    aplicarRestriccionesDeModulo(); 
 });

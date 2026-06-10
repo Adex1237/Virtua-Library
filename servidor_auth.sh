@@ -3,7 +3,7 @@
 # Configuración
 PUERTO=8585
 SALT_SECRETO="MiPalabraSuperSecreta123!"
-# Tu URL de Google Apps Script (Asegúrate de que sea la última versión implementada)
+# Tu URL de Google Apps Script de Usuarios
 APPS_SCRIPT_USUARIOS="https://script.google.com/macros/s/AKfycbxMwaFs6xAuni7FroDvdgoD_w7VkMWmHsYyvQ0HUPDkA3tfVOdjEqyJ0PDzcZ9AIhi1_w/exec"
 
 echo "Servidor de cifrado Auth corriendo en el puerto $PUERTO usando Python+Bash..."
@@ -30,37 +30,24 @@ class AuthHandler(http.server.BaseHTTPRequestHandler):
         post_data = self.rfile.read(content_length).decode('utf-8')
         data = json.loads(post_data)
         
+        password = data.get('password', '')
+        usuario = data.get('usuario', '')
+        correo = data.get('correo', '')
         accion = data.get('accion', '')
-        payload = {}
+        
+        # --- CIFRADO CON BASH ---
+        cmd_cifrado = f'echo -n \"{password}{SALT_INTERNO}\" | openssl dgst -sha256 | awk \"{{print \$2}}\"'
+        password_cifrada = subprocess.check_output(cmd_cifrado, shell=True).decode('utf-8').strip()
+        
+        payload = {
+            'accion': accion,
+            'usuario': usuario,
+            'password': password_cifrada
+        }
+        if accion == 'registro':
+            payload['correo'] = correo
 
-        if accion == 'subir_archivo':
-            payload = {
-                'accion': 'subir_archivo',
-                'nombre': data.get('nombre', ''),
-                'categoria': data.get('categoria', ''),
-                'tamano': data.get('tamano', ''),
-                'propietario': data.get('propietario', '')
-            }
-            # Opcional: Aquí tienes data.get('archivoData') en Base64 listo por si en el futuro
-            # quieres subir el archivo físicamente usando la API oficial de Google Drive.
-
-        else:
-            password = data.get('password', '')
-            usuario = data.get('usuario', '')
-            correo = data.get('correo', '')
-            
-            # Cifradores OpenSSL nativos de Bash
-            cmd_cifrado = f'echo -n \"{password}{SALT_INTERNO}\" | openssl dgst -sha256 | awk \"{{print \$2}}\"'
-            password_cifrada = subprocess.check_output(cmd_cifrado, shell=True).decode('utf-8').strip()
-            
-            payload = {
-                'accion': accion,
-                'usuario': usuario,
-                'password': password_cifrada
-            }
-            if accion == 'registro':
-                payload['correo'] = correo
-
+        # --- ENVÍO SEGURO NATIVO (Reemplazo de cURL para evitar errores de Windows) ---
         req = urllib.request.Request(
             URL_DRIVE_INTERNA, 
             data=json.dumps(payload).encode('utf-8'), 

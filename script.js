@@ -50,59 +50,66 @@ function renderizarTarjetas() {
     const contenedor = document.getElementById("content");
     contenedor.innerHTML = ""; 
 
-    // Si el usuario da clic en "Agregar", mostramos un mensaje temporal en lo que programas el formulario
+    // --- NUEVO: FORMULARIO DINÁMICO PARA AGREGAR ARCHIVOS ---
     if (categoriaActual === "agregar") {
-        contenedor.innerHTML = "<p style='color: #777; padding:20px; grid-column: 1/-1; text-align:center;'>Aquí se mostrará el formulario para subir nuevos archivos a Google Drive.</p>";
-        return;
-    }
+        // Tomamos el usuario actual para mostrar quién está subiendo el archivo
+        const usuarioActual = localStorage.getItem("sesion-usuario") || "Invitado";
 
-    const archivosFiltrados = baseDeDatosArchivos.filter(archivo => {
-        const cumpleCategoria = (categoriaActual === "todos" || archivo.categoria === categoriaActual);
-        const cumpleBusqueda = archivo.nombre.toLowerCase().includes(textoBusquedaActual.toLowerCase());
-        return cumpleCategoria && cumpleBusqueda;
-    });
+        contenedor.innerHTML = `
+            <div class="upload-container">
+                <div class="upload-header">
+                    <i class="fa-solid fa-cloud-arrow-up"></i>
+                    <h3>Subir Nuevo Archivo</h3>
+                    <p>El archivo se asociará a tu cuenta: <strong>${usuarioActual}</strong></p>
+                </div>
+                <form id="form-agregar-archivo">
+                    <div class="upload-group">
+                        <label for="upload-name"><i class="fa-solid fa-file-signature"></i> Nombre del Archivo</label>
+                        <input type="text" id="upload-name" placeholder="Ej. Álgebra Lineal - Cap 1" required>
+                    </div>
 
-    if (archivosFiltrados.length === 0) {
-        contenedor.innerHTML = "<p style='color: #777; padding:20px; grid-column: 1/-1; text-align:center;'>No se encontraron archivos en esta sección.</p>";
-        return;
-    }
+                    <div class="upload-group">
+                        <label for="upload-category"><i class="fa-solid fa-tags"></i> Categoría</label>
+                        <select id="upload-category" required>
+                            <option value="" disabled selected>Selecciona una categoría...</option>
+                            <option value="documentos">Documentos</option>
+                            <option value="videos">Videos</option>
+                            <option value="audio">Audio</option>
+                            <option value="imagenes">Imágenes</option>
+                            <option value="juegos">Juegos</option>
+                            <option value="otros">Otros</option>
+                        </select>
+                    </div>
 
-    archivosFiltrados.forEach(archivo => {
-        const card = document.createElement("div");
-        card.className = "video-card";
-        card.setAttribute("data-category", archivo.categoria);
-        card.style.cursor = "pointer";
+                    <div class="upload-group">
+                        <label for="upload-file" class="file-label">
+                            <i class="fa-solid fa-folder-open"></i> Seleccionar Archivo
+                        </label>
+                        <input type="file" id="upload-file" required>
+                        <div id="file-name-preview" class="file-preview">Ningún archivo seleccionado</div>
+                    </div>
 
-        let elementoVisual = "";
-        
-        if (archivo.categoria === "imagenes") {
-            const urlImagen = `https://drive.google.com/uc?export=view&id=${archivo.id}`;
-            elementoVisual = `<img src="${urlImagen}" alt="${archivo.nombre}" style="width:100%; height:180px; object-fit:cover; border-radius:16px 16px 0 0;">`;
-        } else if (archivo.categoria === "videos") {
-            elementoVisual = `
-                <div style="width:100%; height:180px; background:#1e1e1e; display:flex; align-items:center; justify-content:center; border-radius:16px 16px 0 0; position:relative;">
-                    <i class="fa-solid fa-circle-play" style="font-size: 50px; color: #ff4b2b; z-index:2;"></i>
-                    <div style="position:absolute; width:100%; height:100%; background: linear-gradient(transparent, rgba(0,0,0,0.7)); border-radius:16px 16px 0 0;"></div>
-                </div>`;
-        } else {
-            const urlPreview = `https://drive.google.com/file/d/${archivo.id}/preview`;
-            elementoVisual = `<iframe src="${urlPreview}" scrolling="no"></iframe>`;
-        }
-
-        card.innerHTML = `
-            ${elementoVisual}
-            <div class="video-info">
-                <h4>${archivo.nombre}</h4>
-                <p>${archivo.categoria.toUpperCase()} • ${archivo.tamano}</p>
+                    <button type="submit" class="btn-upload-submit">
+                        <i class="fa-solid fa-paper-plane"></i> Subir a la Biblioteca
+                    </button>
+                </form>
             </div>
         `;
 
-        if (archivo.categoria === "videos") {
-            card.addEventListener("click", () => abrirReproductorVideo(archivo.id, archivo.nombre));
-        }
+        // Listener para mostrar el nombre del archivo seleccionado en tiempo real
+        document.getElementById("upload-file").addEventListener("change", (e) => {
+            const fileName = e.target.files[0] ? e.target.files[0].name : "Ningún archivo seleccionado";
+            document.getElementById("file-name-preview").textContent = fileName;
+        });
 
-        contenedor.appendChild(card);
-    });
+        // Listener para controlar el envío del formulario (Por ahora solo frena la recarga)
+        document.getElementById("form-agregar-archivo").addEventListener("submit", (e) => {
+            e.preventDefault();
+            alert("¡Estructura lista! En el siguiente paso conectaremos el envío a Google Drive.");
+        });
+
+        return;
+    }
 }
 
 function abrirReproductorVideo(idArchivo, nombreVideo) {

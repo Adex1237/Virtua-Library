@@ -203,11 +203,16 @@ async function ejecutarAutenticacion(payload) {
         
         if (resultado.estatus === "ok") {
             if (payload.accion === "login") {
+                // 1. Guardamos los datos en la memoria del navegador
                 localStorage.setItem("sesion-usuario", resultado.usuario);
                 localStorage.setItem("sesion-rol", resultado.rol); 
-                alert("¡Bienvenido " + resultado.usuario + "!");
-                aplicarRestriccionesDeModulo();
+                
+                // 2. CAMBIO: Quitamos el alert de bienvenida y cerramos el modal directamente
                 document.getElementById("login-modal").style.display = "none";
+                
+                // 3. CAMBIO: Actualizamos la interfaz para mostrar el nombre del usuario de inmediato
+                actualizarBotonUsuario();
+                aplicarRestriccionesDeModulo();
             } else {
                 alert("¡Registro exitoso! Ya puedes iniciar sesión.");
                 document.getElementById("register-modal").style.display = "none";
@@ -219,6 +224,31 @@ async function ejecutarAutenticacion(payload) {
     } catch (err) {
         console.error("Error al conectar con el cifrador Bash:", err);
         alert("Error de conexión con el servidor de autenticación local.");
+    }
+}
+
+// Función para cambiar el texto de "Ingresar" por el nombre del usuario conectado
+function actualizarBotonUsuario() {
+    const usuarioLogueado = localStorage.getItem("sesion-usuario");
+    const botonAuth = document.getElementById("auth-modal-trigger");
+    const dropdown = document.getElementById("logout-dropdown");
+    
+    if (usuarioLogueado) {
+        // Si hay una sesión activa, metemos el icono de usuario verificado y la flecha de menú
+        botonAuth.innerHTML = `
+            <i class="fa-solid fa-user-check" style="color: #38ef7d;"></i>
+            <span>${usuarioLogueado}</span>
+            <i class="fa-solid fa-chevron-down" style="font-size: 10px; margin-left: 5px; color: #aaa;"></i>
+        `;
+        botonAuth.title = "Opciones de cuenta";
+    } else {
+        // Si no hay sesión, dejamos el botón original de ingresar
+        botonAuth.innerHTML = `
+            <i class="fa-solid fa-user-gear"></i>
+            <span>Ingresar</span>
+        `;
+        botonAuth.title = "Acceder a la cuenta";
+        dropdown.style.display = "none"; // Asegura ocultar el menú si no hay usuario
     }
 }
 
@@ -235,6 +265,8 @@ function inicializarModalesAuth() {
     const loginModal = document.getElementById("login-modal");
     const registerModal = document.getElementById("register-modal");
     const btnAbrirLogin = document.getElementById("auth-modal-trigger");
+    const dropdown = document.getElementById("logout-dropdown");
+    const btnCerrarSesion = document.getElementById("btn-cerrar-sesion");
     
     const btnCerrarLogin = document.getElementById("close-login");
     const btnCerrarRegister = document.getElementById("close-register");
@@ -242,7 +274,39 @@ function inicializarModalesAuth() {
     const linkARegistro = document.getElementById("go-to-register");
     const linkALogin = document.getElementById("go-to-login");
 
-    btnAbrirLogin.addEventListener("click", () => loginModal.style.display = "flex");
+    // INTERRUPTOR INTELIGENTE: Si hay usuario abre/cierra el menú flotante, si no, abre el login
+    btnAbrirLogin.addEventListener("click", (e) => {
+        e.stopPropagation(); // Evita que el evento "click" global cierre el menú de inmediato
+        const usuarioLogueado = localStorage.getItem("sesion-usuario");
+        if (usuarioLogueado) {
+            dropdown.style.display = dropdown.style.display === "block" ? "none" : "block";
+        } else {
+            loginModal.style.display = "flex";
+        }
+    });
+
+    // ACCIÓN DE CERRAR SESIÓN
+    btnCerrarSesion.addEventListener("click", (e) => {
+        e.preventDefault();
+        // Borramos los datos guardados en el navegador
+        localStorage.removeItem("sesion-usuario");
+        localStorage.removeItem("sesion-rol");
+        
+        // Reiniciamos la interfaz
+        dropdown.style.display = "none";
+        actualizarBotonUsuario();
+        aplicarRestriccionesDeModulo();
+        
+        // Regresa automáticamente a la pestaña "todos"
+        document.querySelector('[data-category="todos"]').click();
+        alert("Sesión cerrada correctamente.");
+    });
+
+    // Cerrar el menú flotante si el usuario hace clic en cualquier otra parte de la pantalla
+    window.addEventListener("click", () => {
+        dropdown.style.display = "none";
+    });
+
     btnCerrarLogin.addEventListener("click", () => loginModal.style.display = "none");
     btnCerrarRegister.addEventListener("click", () => registerModal.style.display = "none");
 
@@ -289,5 +353,6 @@ document.addEventListener("DOMContentLoaded", () => {
     inicializarModoOscuro();
     inicializarEventosModal();
     inicializarModalesAuth();
-    aplicarRestriccionesDeModulo(); 
+    aplicarRestriccionesDeModulo();
+    actualizarBotonUsuario(); 
 });

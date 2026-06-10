@@ -11,6 +11,7 @@ const coloresCategorias = {
     imagenes: "linear-gradient(135deg, #2193b0 0%, #6dd5ed 100%)",  
     juegos: "linear-gradient(135deg, #f857a6 0%, #ff5858 100%)",    
     otros: "linear-gradient(135deg, #4158d0 0%, #c850c0 46%, #ffcc70 100%)",
+    "mis-archivos": "linear-gradient(135deg, #3b52ff 0%, #2193b0 100%)",
     agregar: "linear-gradient(135deg, #11998e 0%, #1ee596 100%)" 
 };
 
@@ -49,11 +50,97 @@ async function cargarDatosDesdeDrive() {
 function renderizarTarjetas() {
     const contenedor = document.getElementById("content");
     contenedor.innerHTML = "";
+    const usuarioLogueado = localStorage.getItem("sesion-usuario") || "Invitado";
 
-    if (categoriaActual === "agregar") {
-        contenedor.innerHTML = "<p style='color: #777; padding:20px; grid-column: 1/-1; text-align:center;'>Aquí se mostrará el formulario para subir nuevos archivos a Google Drive.</p>";
+    // === VISTA: MIS ARCHIVOS (CON ICONOS EN LAS FILAS) ===
+    if (categoriaActual === "mis-archivos") {
+        const misArchivos = baseDeDatosArchivos.filter(arc => arc.propietario === usuarioLogueado);
+        const categoriasOrdenadas = ["documentos", "videos", "audio", "imagenes", "juegos", "otros"];
+        let filasHTML = "";
+        
+        // Mapeo de iconos específicos para cada fila de tus archivos
+        const iconosFilas = {
+            documentos: "fa-file-lines",
+            videos: "fa-video",
+            audio: "fa-music",
+            imagenes: "fa-image",
+            juegos: "fa-gamepad",
+            otros: "fa-ellipsis"
+        };
+
+        categoriasOrdenadas.forEach(cat => {
+            const archivosDeEstaCat = misArchivos.filter(arc => arc.categoria === cat);
+            const iconoActual = iconosFilas[cat] || "fa-folder";
+
+            filasHTML += `
+                <div class="category-row">
+                    <h4><i class="fa-solid ${iconoActual}"></i> Mis ${cat.toUpperCase()}</h4>
+                    <div class="row-products-list">
+                        ${archivosDeEstaCat.length === 0 
+                            ? `<p class="empty-row-text">No tienes archivos guardados en esta sección.</p>`
+                            : archivosDeEstaCat.map(archivo => `
+                                <div class="user-file-item">
+                                    <span><i class="fa-solid ${iconoActual}" style="margin-right: 8px; opacity: 0.7;"></i>${archivo.nombre} <small>(${archivo.tamano})</small></span>
+                                    <button class="btn-delete-file" onclick="eliminarArchivoSimulado('${archivo.id}')">
+                                        <i class="fa-solid fa-trash-can"></i> Eliminar
+                                    </button>
+                                </div>
+                              `).join('')
+                        }
+                    </div>
+                </div>
+            `;
+        });
+
+        contenedor.innerHTML = `
+            <div class="manager-container">
+                <h3 class="manager-title">
+                    <i class="fa-solid fa-folder-user"></i> Repositorio de: <strong>${usuarioLogueado}</strong>
+                </h3>
+                ${filasHTML}
+            </div>
+        `;
         return;
-    } 
+    }
+
+    // === VISTA: AGREGAR (CON EL BOTÓN DE SUBIR CORREGIDO Y CON ICONO) ===
+    if (categoriaActual === "agregar") {
+        contenedor.innerHTML = `
+            <div class="manager-container compact-view">
+                <div class="upload-form-card">
+                    <h3><i class="fa-solid fa-cloud-arrow-up"></i> Agregar Nuevo Archivo</h3>
+                    <form onsubmit="event.preventDefault(); alert('Subida simulada con éxito.');">
+                        <div class="form-group">
+                            <label>Nombre del Archivo</label>
+                            <input type="text" placeholder="Escribe el título..." required>
+                        </div>
+                        <div class="form-group">
+                            <label>Categoría</label>
+                            <select required>
+                                <option value="documentos">Documentos</option>
+                                <option value="videos">Videos</option>
+                                <option value="audio">Audio</option>
+                                <option value="imagenes">Imágenes</option>
+                                <option value="juegos">Juegos</option>
+                                <option value="otros">Otros</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="file-label-btn" for="simple-file">
+                                <i class="fa-solid fa-paperclip"></i> Elegir Archivo
+                            </label>
+                            <input type="file" id="simple-file" style="display:none;" onchange="document.getElementById('simple-file-text').textContent = this.files[0].name">
+                            <span id="simple-file-text" class="file-status-text">Ningún archivo seleccionado</span>
+                        </div>
+                        <button type="submit" class="btn-upload-submit">
+                            <i class="fa-solid fa-arrow-up-from-bracket"></i> Subir Archivo
+                        </button>
+                    </form>
+                </div>
+            </div>
+        `;
+        return;
+    }
 
     const archivosFiltrados = baseDeDatosArchivos.filter(archivo => {
         const cumpleCategoria = (categoriaActual === "todos" || archivo.categoria === categoriaActual);

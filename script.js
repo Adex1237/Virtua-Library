@@ -10,7 +10,8 @@ const coloresCategorias = {
     audio: "linear-gradient(135deg, #11998e 0%, #38ef7d 100%)",     
     imagenes: "linear-gradient(135deg, #2193b0 0%, #6dd5ed 100%)",  
     juegos: "linear-gradient(135deg, #f857a6 0%, #ff5858 100%)",    
-    otros: "linear-gradient(135deg, #4158d0 0%, #c850c0 46%, #ffcc70 100%)" 
+    otros: "linear-gradient(135deg, #4158d0 0%, #c850c0 46%, #ffcc70 100%)",
+    agregar: "linear-gradient(135deg, #11998e 0%, #1ee596 100%)" 
 };
 
 let baseDeDatosArchivos = [];
@@ -47,7 +48,12 @@ async function cargarDatosDesdeDrive() {
 
 function renderizarTarjetas() {
     const contenedor = document.getElementById("content");
-    contenedor.innerHTML = ""; 
+    contenedor.innerHTML = "";
+
+    if (categoriaActual === "agregar") {
+        contenedor.innerHTML = "<p style='color: #777; padding:20px; grid-column: 1/-1; text-align:center;'>Aquí se mostrará el formulario para subir nuevos archivos a Google Drive.</p>";
+        return;
+    } 
 
     const archivosFiltrados = baseDeDatosArchivos.filter(archivo => {
         const cumpleCategoria = (categoriaActual === "todos" || archivo.categoria === categoriaActual);
@@ -216,19 +222,12 @@ async function ejecutarAutenticacion(payload) {
     }
 }
 
-// Algoritmo de Restricción de Módulos (Filtrado según el Excel de usuarios)
 function aplicarRestriccionesDeModulo() {
-    const rol = localStorage.getItem("sesion-rol") || "Invitado";
     const botonesCategorias = document.querySelectorAll(".btn-category");
     
     botonesCategorias.forEach(boton => {
-        const modulo = boton.getAttribute("data-category");
-        
-        if ((modulo === "juegos" || modulo === "otros") && rol !== "Admin") {
-            boton.style.display = "none"; 
-        } else {
-            boton.style.display = "flex"; 
-        }
+        // Forzamos a que todos los botones se muestren siempre en formato flex
+        boton.style.display = "flex"; 
     });
 }
 

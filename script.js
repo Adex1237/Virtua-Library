@@ -1,6 +1,6 @@
 // ====== CONFIGURACIÓN DE APIS ======
 const URL_BACKEND_BASH = "http://localhost:8585"; // Servidor Git Bash local
-const URL_API_ARCHIVOS = "TU_URL_DE_GOOGLE_APPS_SCRIPT_DE_CARPETAS"; // El script que lee las carpetas
+const URL_API_ARCHIVOS = "https://script.google.com/macros/s/AKfycbyU1_OX6GhnXGVD3U85pVF6WACZOobQzeO1JKlSuhoWn1PbHKxjZgz9immhkqHHwYKMzA/exec"; // El script que lee las carpetas
 
 let listaArchivosGlobal = [];
 let categoriaActual = "todos";

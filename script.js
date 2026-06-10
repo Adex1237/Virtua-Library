@@ -204,11 +204,16 @@ async function ejecutarAutenticacion(payload) {
         
         if (resultado.estatus === "ok") {
             if (payload.accion === "login") {
+                // 1. Guardamos los datos en la memoria del navegador
                 localStorage.setItem("sesion-usuario", resultado.usuario);
                 localStorage.setItem("sesion-rol", resultado.rol); 
-                alert("¡Bienvenido " + resultado.usuario + "!");
-                aplicarRestriccionesDeModulo();
+                
+                // 2. CAMBIO: Quitamos el alert de bienvenida y cerramos el modal directamente
                 document.getElementById("login-modal").style.display = "none";
+                
+                // 3. CAMBIO: Actualizamos la interfaz para mostrar el nombre del usuario de inmediato
+                actualizarBotonUsuario();
+                aplicarRestriccionesDeModulo();
             } else {
                 alert("¡Registro exitoso! Ya puedes iniciar sesión.");
                 document.getElementById("register-modal").style.display = "none";
@@ -220,6 +225,28 @@ async function ejecutarAutenticacion(payload) {
     } catch (err) {
         console.error("Error al conectar con el cifrador Bash:", err);
         alert("Error de conexión con el servidor de autenticación local.");
+    }
+}
+
+function actualizarBotonUsuario() {
+    const usuarioLogueado = localStorage.getItem("sesion-usuario");
+    const botonAuth = document.getElementById("auth-modal-trigger");
+    
+    if (usuarioLogueado) {
+        // Si hay una sesión activa, metemos el icono de usuario y su nombre real
+        botonAuth.innerHTML = `
+            <i class="fa-solid fa-user-check" style="color: #38ef7d;"></i>
+            <span>${usuarioLogueado}</span>
+        `;
+        // Opcional: Desactivamos el modal para que no se vuelva a abrir al darle clic si ya inició sesión
+        botonAuth.title = "Sesión activa como " + usuarioLogueado;
+    } else {
+        // Si no hay sesión, dejamos el botón original de ingresar
+        botonAuth.innerHTML = `
+            <i class="fa-solid fa-user-gear"></i>
+            <span>Ingresar</span>
+        `;
+        botonAuth.title = "Acceder a la cuenta";
     }
 }
 
@@ -291,5 +318,6 @@ document.addEventListener("DOMContentLoaded", () => {
     inicializarModoOscuro();
     inicializarEventosModal();
     inicializarModalesAuth();
-    aplicarRestriccionesDeModulo(); 
+    aplicarRestriccionesDeModulo();
+    actualizarBotonUsuario(); 
 });

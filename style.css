@@ -460,3 +460,60 @@ body.dark-mode .auth-footer {
 .auth-footer a:hover {
     text-decoration: underline;
 }
+
+/* Contenedor del perfil y menú desplegable */
+.user-menu-container {
+    position: relative;
+}
+
+.dropdown-content {
+    display: none; 
+    position: absolute; 
+    right: 0; 
+    top: 45px; 
+    background-color: white; 
+    min-width: 140px; 
+    box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2); 
+    border-radius: 12px; 
+    z-index: 3000; 
+    padding: 5px 0;
+}
+
+.dropdown-content a {
+    color: #ff4b2b; 
+    padding: 10px 15px; 
+    text-decoration: none; 
+    display: block; 
+    font-size: 14px; 
+    font-weight: 500; 
+    text-align: left; 
+    transition: background 0.2s;
+}
+
+.dropdown-content a i {
+    margin-right: 8px;
+}
+
+.dropdown-content a:hover {
+    background-color: #f1f3f7;
+    border-radius: 8px;
+}
+
+/* Clases específicas para el nuevo botón Agregar */
+.icon-agregar {
+    color: #38ef7d;
+}
+
+.text-agregar {
+    font-weight: 600;
+}
+
+/* --- SOPORTE DE MODO OSCURO PARA EL MENÚ DESPLEGABLE --- */
+body.dark-mode .dropdown-content {
+    background-color: #1e1e1e !important;
+    box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.5) !important;
+}
+
+body.dark-mode .dropdown-content a:hover {
+    background-color: #2a2a2a;
+}

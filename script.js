@@ -231,22 +231,22 @@ async function ejecutarAutenticacion(payload) {
 function actualizarBotonUsuario() {
     const usuarioLogueado = localStorage.getItem("sesion-usuario");
     const botonAuth = document.getElementById("auth-modal-trigger");
+    const dropdown = document.getElementById("logout-dropdown");
     
     if (usuarioLogueado) {
-        // Si hay una sesión activa, metemos el icono de usuario y su nombre real
         botonAuth.innerHTML = `
             <i class="fa-solid fa-user-check" style="color: #38ef7d;"></i>
             <span>${usuarioLogueado}</span>
+            <i class="fa-solid fa-chevron-down" style="font-size: 10px; margin-left: 5px; color: #aaa;"></i>
         `;
-        // Opcional: Desactivamos el modal para que no se vuelva a abrir al darle clic si ya inició sesión
-        botonAuth.title = "Sesión activa como " + usuarioLogueado;
+        botonAuth.title = "Opciones de cuenta";
     } else {
-        // Si no hay sesión, dejamos el botón original de ingresar
         botonAuth.innerHTML = `
             <i class="fa-solid fa-user-gear"></i>
             <span>Ingresar</span>
         `;
         botonAuth.title = "Acceder a la cuenta";
+        dropdown.style.display = "none"; // Se asegura de ocultar el menú si no hay usuario
     }
 }
 
@@ -264,6 +264,8 @@ function inicializarModalesAuth() {
     const loginModal = document.getElementById("login-modal");
     const registerModal = document.getElementById("register-modal");
     const btnAbrirLogin = document.getElementById("auth-modal-trigger");
+    const dropdown = document.getElementById("logout-dropdown");
+    const btnCerrarSesion = document.getElementById("btn-cerrar-sesion");
     
     const btnCerrarLogin = document.getElementById("close-login");
     const btnCerrarRegister = document.getElementById("close-register");
@@ -271,7 +273,39 @@ function inicializarModalesAuth() {
     const linkARegistro = document.getElementById("go-to-register");
     const linkALogin = document.getElementById("go-to-login");
 
-    btnAbrirLogin.addEventListener("click", () => loginModal.style.display = "flex");
+    // INTERRUPTOR INTELIGENTE: Si hay usuario abre/cierra el menú flotante, si no, abre el login
+    btnAbrirLogin.addEventListener("click", (e) => {
+        e.stopPropagation(); // Evita que se cierre inmediatamente
+        const usuarioLogueado = localStorage.getItem("sesion-usuario");
+        if (usuarioLogueado) {
+            dropdown.style.display = dropdown.style.display === "none" ? "block" : "none";
+        } else {
+            loginModal.style.display = "flex";
+        }
+    });
+
+    // ACCIÓN DE CERRAR SESIÓN
+    btnCerrarSesion.addEventListener("click", (e) => {
+        e.preventDefault();
+        // Borramos los datos guardados en el navegador
+        localStorage.removeItem("sesion-usuario");
+        localStorage.removeItem("sesion-rol");
+        
+        // Reiniciamos la interfaz
+        dropdown.style.display = "none";
+        actualizarBotonUsuario();
+        aplicarRestriccionesDeModulo();
+        
+        // Opcional: Recargar la pestaña "todos" por si estaba en una pestaña restringida
+        document.querySelector('[data-category="todos"]').click();
+        alert("Sesión cerrada correctamente.");
+    });
+
+    // Cerrar el menú flotante si el usuario hace clic en cualquier otra parte de la pantalla
+    window.addEventListener("click", () => {
+        dropdown.style.display = "none";
+    });
+
     btnCerrarLogin.addEventListener("click", () => loginModal.style.display = "none");
     btnCerrarRegister.addEventListener("click", () => registerModal.style.display = "none");
 

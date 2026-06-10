@@ -517,3 +517,366 @@ body.dark-mode .dropdown-content {
 body.dark-mode .dropdown-content a:hover {
     background-color: #2a2a2a;
 }
+
+/* --- COMPONENTE GESTOR SIMPLIFICADO --- */
+.manager-container {
+    grid-column: 1 / -1;
+    max-width: 650px;
+    width: 100%;
+    margin: 20px auto;
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+}
+
+/* Formulario Limpio */
+.upload-form-card {
+    background-color: white;
+    padding: 25px 30px;
+    border-radius: 20px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+    transition: background-color 0.3s;
+}
+
+.upload-form-card h3 {
+    font-size: 18px;
+    margin-bottom: 20px;
+    color: #333;
+}
+
+.form-group {
+    margin-bottom: 15px;
+    display: flex;
+    flex-direction: column;
+    text-align: left;
+}
+
+.form-group label {
+    font-size: 13px;
+    font-weight: 500;
+    margin-bottom: 6px;
+    color: #555;
+}
+
+.form-group input[type="text"],
+.form-group select {
+    width: 100%;
+    padding: 10px 16px;
+    font-size: 14px;
+    border-radius: 50px;
+    border: 1px solid #e1e4e8;
+    background-color: #f8f9fa;
+    outline: none;
+}
+
+/* Estilo para botón de archivo oculto */
+.file-label-btn {
+    background-color: #11998e;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 50px;
+    cursor: pointer;
+    font-size: 13px;
+    display: inline-block;
+    align-self: flex-start;
+}
+
+/* Estructura de Filas de Archivos */
+.category-row {
+    background: white;
+    padding: 20px;
+    border-radius: 16px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.02);
+}
+
+.category-row h4 {
+    font-size: 15px;
+    color: #555;
+    margin-bottom: 12px;
+    border-bottom: 1px solid #f1f3f7;
+    padding-bottom: 6px;
+}
+
+.user-file-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 15px;
+    background-color: #f8f9fa;
+    border-radius: 50px;
+    margin-bottom: 8px;
+    font-size: 13px;
+}
+
+.btn-delete-file {
+    background: none;
+    border: none;
+    color: #ff4b2b;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 13px;
+}
+
+/* SOPORTE MODO OSCURO MÁS SIMPLE */
+body.dark-mode .upload-form-card,
+body.dark-mode .category-row {
+    background-color: #1e1e1e;
+}
+
+body.dark-mode .upload-form-card h3,
+body.dark-mode .category-row h4,
+body.dark-mode .form-group label {
+    color: #f1f3f7;
+}
+
+body.dark-mode .form-group input,
+body.dark-mode .form-group select,
+body.dark-mode .user-file-item {
+    background-color: #2a2a2a;
+    border-color: #3a3a3a;
+    color: white;
+}
+
+/* --- COMPONENTE GESTOR GENERAL (MIS ARCHIVOS Y AGREGAR) --- */
+.manager-container {
+    grid-column: 1 / -1;
+    max-width: 700px;
+    width: 100%;
+    margin: 20px auto;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.manager-container.compact-view {
+    max-width: 550px;
+}
+
+.manager-title {
+    font-size: 16px;
+    margin-bottom: 5px;
+    color: var(--color-activo, #3b52ff);
+}
+
+.manager-title i {
+    margin-right: 5px;
+}
+
+.manager-title strong {
+    font-weight: 600;
+}
+
+/* Formulario Limpio de Carga */
+.upload-form-card {
+    background-color: white;
+    padding: 25px 30px;
+    border-radius: 20px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+    transition: background-color 0.3s;
+}
+
+.upload-form-card h3 {
+    font-size: 18px;
+    margin-bottom: 20px;
+    color: #333;
+}
+
+.upload-form-card h3 i {
+    margin-right: 5px;
+}
+
+.form-group {
+    margin-bottom: 15px;
+    display: flex;
+    flex-direction: column;
+    text-align: left;
+}
+
+.form-group label {
+    font-size: 13px;
+    font-weight: 500;
+    margin-bottom: 6px;
+    color: #555;
+}
+
+.form-group input[type="text"],
+.form-group select {
+    width: 100%;
+    padding: 10px 16px;
+    font-size: 14px;
+    border-radius: 50px;
+    border: 1px solid #e1e4e8;
+    background-color: #f8f9fa;
+    outline: none;
+    transition: all 0.2s ease;
+}
+
+.form-group input[type="text"]:focus,
+.form-group select:focus {
+    border-color: #11998e;
+    background-color: white;
+}
+
+/* Botón de Archivo Oculto */
+.file-label-btn {
+    background-color: #11998e;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 50px;
+    cursor: pointer;
+    font-size: 13px;
+    display: inline-block;
+    align-self: flex-start;
+    transition: background-color 0.2s;
+}
+
+.file-label-btn:hover {
+    background-color: #0d7c73;
+}
+
+.file-label-btn i {
+    margin-right: 5px;
+}
+
+.file-status-text {
+    font-size: 12px;
+    color: #888;
+    margin-top: 5px;
+    font-style: italic;
+}
+
+/* Estructura de Filas de "Mis Archivos" */
+.category-row {
+    background: white;
+    padding: 20px;
+    border-radius: 16px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.02);
+    transition: background-color 0.3s;
+}
+
+.category-row h4 {
+    font-size: 14px;
+    color: #555;
+    margin-bottom: 12px;
+    border-bottom: 1px solid #f1f3f7;
+    padding-bottom: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.category-row h4 i {
+    margin-right: 5px;
+}
+
+.row-products-list {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.empty-row-text {
+    color: #888;
+    font-size: 12px;
+    font-style: italic;
+    padding-left: 10px;
+}
+
+.user-file-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 18px;
+    background-color: #f8f9fa;
+    border-radius: 50px;
+    margin-bottom: 8px;
+    font-size: 13px;
+    transition: background-color 0.2s;
+}
+
+.user-file-item:hover {
+    background-color: #f1f3f7;
+}
+
+.user-file-item small {
+    color: #888;
+    margin-left: 5px;
+}
+
+.btn-delete-file {
+    background: none;
+    border: none;
+    color: #ff4b2b;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    transition: opacity 0.2s;
+}
+
+.btn-delete-file:hover {
+    opacity: 0.8;
+}
+
+/* --- SOPORTE DE MODO OSCURO AUTOMÁTICO --- */
+body.dark-mode .upload-form-card,
+body.dark-mode .category-row {
+    background-color: #1e1e1e;
+}
+
+body.dark-mode .upload-form-card h3,
+body.dark-mode .category-row h4,
+body.dark-mode .form-group label {
+    color: #f1f3f7;
+}
+
+body.dark-mode .category-row h4 {
+    border-bottom-color: #2a2a2a;
+}
+
+body.dark-mode .form-group input[type="text"],
+body.dark-mode .form-group select,
+body.dark-mode .user-file-item {
+    background-color: #2a2a2a;
+    border-color: #3a3a3a;
+    color: white;
+}
+
+body.dark-mode .user-file-item:hover {
+    background-color: #333;
+}
+
+/* Botón Principal de Envío del Formulario (Corregido) */
+.btn-upload-submit {
+    width: 100%;
+    padding: 12px;
+    background: linear-gradient(135deg, #11998e 0%, #1ee596 100%);
+    color: white;
+    font-size: 15px;
+    font-weight: 600;
+    border: none;
+    border-radius: 50px;
+    cursor: pointer;
+    margin-top: 10px;
+    box-shadow: 0 4px 12px rgba(17, 153, 142, 0.2);
+    transition: transform 0.2s, box-shadow 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.btn-upload-submit:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(17, 153, 142, 0.3);
+}
+
+.btn-upload-submit:active {
+    transform: translateY(0);
+}
+
+/* Ajuste del botón enviar para Modo Oscuro */
+body.dark-mode .btn-upload-submit {
+    background: linear-gradient(135deg, #0f837a 0%, #19c27f 100%);
+}

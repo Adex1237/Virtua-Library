@@ -20,7 +20,7 @@
             </div>
             
             <div class="header-actions">
-                <button id="auth-modal-trigger" aria-label="Iniciar Sesión" title="Acceder de la cuenta">
+                <button id="auth-modal-trigger" aria-label="Iniciar Sesión" title="Acceder a la cuenta">
                     <i class="fa-solid fa-user-gear"></i>
                     <span>Ingresar</span>
                 </button>
@@ -78,6 +78,12 @@
             <span class="btn-text">Otros</span>
             <span class="badge" id="badge-otros">...</span>
         </button>
+
+        <button class="btn-category" data-category="agregar" id="btn-modulo-agregar">
+            <i class="fa-solid fa-circle-plus" style="color: #38ef7d;"></i>
+            <span class="btn-text" style="font-weight: 600;">Agregar</span>
+            <span class="badge">+</span>
+        </button>
     </div>
 
     <div id="content"></div>
@@ -97,14 +103,14 @@
                 <h2>Iniciar Sesión</h2>
                 <p>Accede a tu panel de la Biblioteca Virtual</p>
             </div>
-            <form onsubmit="event.preventDefault();">
+            <form>
                 <div class="auth-input-group">
                     <i class="fa-solid fa-user"></i>
-                    <input type="text" placeholder="Nombre de usuario o correo">
+                    <input type="text" placeholder="Nombre de usuario" required autocomplete="username">
                 </div>
                 <div class="auth-input-group">
                     <i class="fa-solid fa-lock"></i>
-                    <input type="password" placeholder="Contraseña">
+                    <input type="password" placeholder="Contraseña" required autocomplete="current-password">
                 </div>
                 <button type="submit" class="btn-auth-submit">Ingresar</button>
             </form>
@@ -122,18 +128,18 @@
                 <h2>Crear Cuenta</h2>
                 <p>Regístrate para obtener tu acceso personalizado</p>
             </div>
-            <form onsubmit="event.preventDefault();">
+            <form>
                 <div class="auth-input-group">
                     <i class="fa-solid fa-user"></i>
-                    <input type="text" placeholder="Elige un usuario">
+                    <input type="text" placeholder="Elige un usuario" required autocomplete="username">
                 </div>
                 <div class="auth-input-group">
                     <i class="fa-solid fa-envelope"></i>
-                    <input type="email" placeholder="Correo electrónico">
+                    <input type="email" placeholder="Correo electrónico" required autocomplete="email">
                 </div>
                 <div class="auth-input-group">
                     <i class="fa-solid fa-lock"></i>
-                    <input type="password" placeholder="Crea una contraseña">
+                    <input type="password" placeholder="Crea una contraseña" required autocomplete="new-password">
                 </div>
                 <button type="submit" class="btn-auth-submit">Registrarse</button>
             </form>

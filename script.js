@@ -203,6 +203,7 @@ function renderizarTarjetas() {
         card.style.cursor = "pointer";
 
         let elementoVisual = "";
+        let accionClick = ""; // Nueva variable para controlar el click limpio
         
         if (archivo.categoria === "imagenes") {
             const urlPreviewImagen = `https://drive.google.com/file/d/${archivo.id}/preview`;
@@ -211,15 +212,28 @@ function renderizarTarjetas() {
                     <iframe src="${urlPreviewImagen}" scrolling="no" style="width:100%; height:100%; border:none; pointer-events: none;"></iframe>
                     <div style="position:absolute; top:0; left:0; width:100%; height:100%; background:transparent;"></div>
                 </div>`;
+            accionClick = `abrirVisorImagen('${archivo.id}', '${archivo.nombre.replace(/'/g, "\\'")}')`;
         } else if (archivo.categoria === "videos") {
             elementoVisual = `
                 <div style="width:100%; height:180px; background:#1e1e1e; display:flex; align-items:center; justify-content:center; border-radius:16px 16px 0 0; position:relative;">
                     <i class="fa-solid fa-circle-play" style="font-size: 50px; color: #ff4b2b; z-index:2;"></i>
                     <div style="position:absolute; width:100%; height:100%; background: linear-gradient(transparent, rgba(0,0,0,0.7)); border-radius:16px 16px 0 0;"></div>
                 </div>`;
+            accionClick = `abrirReproductorVideo('${archivo.id}', '${archivo.nombre.replace(/'/g, "\\'")}')`;
+        } else if (archivo.categoria === "audio") {
+            elementoVisual = `
+                <div style="width:100%; height:180px; background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); display:flex; align-items:center; justify-content:center; border-radius:16px 16px 0 0; position:relative;">
+                    <i class="fa-solid fa-file-audio" style="font-size: 55px; color: white; z-index:2; filter: drop-shadow(0px 4px 8px rgba(0,0,0,0.2));"></i>
+                </div>`;
+            accionClick = `abrirReproductorAudio('${archivo.id}', '${archivo.nombre.replace(/'/g, "\\'")}')`;
         } else {
             const urlPreview = `https://drive.google.com/file/d/${archivo.id}/preview`;
             elementoVisual = `<iframe src="${urlPreview}" scrolling="no"></iframe>`;
+        }
+
+        // Asignamos la acción directamente a la tarjeta
+        if (accionClick) {
+            card.setAttribute("onclick", accionClick);
         }
 
         card.innerHTML = `
@@ -230,14 +244,25 @@ function renderizarTarjetas() {
             </div>
         `;
 
-        if (archivo.categoria === "videos") {
-            card.addEventListener("click", () => abrirReproductorVideo(archivo.id, archivo.nombre));
-        } else if (archivo.categoria === "imagenes") {
-            card.addEventListener("click", () => abrirVisorImagen(archivo.id, archivo.nombre));
-        }
-
         contenedor.appendChild(card);
     });
+}
+
+function abrirReproductorAudio(idArchivo, nombreAudio) {
+    const modal = document.getElementById("video-modal");
+    if (!modal) {
+        console.error("No se encontró el elemento 'video-modal' en el HTML.");
+        return;
+    }
+    const container = modal.querySelector(".video-container");
+    if (!container) {
+        console.error("No se encontró el elemento '.video-container' dentro del modal.");
+        return;
+    }
+    
+    // Insertamos el iframe de previsualización de Drive para el audio
+    container.innerHTML = `<iframe src="https://drive.google.com/file/d/${idArchivo}/preview" style="width:100%; height:100%; border:none;" allow="autoplay"></iframe>`;
+    modal.style.display = "flex";
 }
 
 function procesarSubidaArchivoReal(evento) {

@@ -23,6 +23,9 @@
                         <span>Ingresar</span>
                     </button>
                     <div id="logout-dropdown" class="dropdown-content">
+                        <a href="#" id="btn-abrir-config-cuenta">
+                            <i class="fa-solid fa-sliders"></i> Mi Cuenta
+                        </a>
                         <a href="#" id="btn-cerrar-sesion">
                             <i class="fa-solid fa-right-from-bracket"></i>Cerrar Sesión
                         </a>
@@ -90,7 +93,48 @@
             <span class="badge">+</span>
         </button>
     </div>
+
     <div id="content"></div>
+
+    <div id="account-modal" class="auth-modal" style="display: none;">
+        <div class="auth-modal-content" style="max-width: 700px; max-height: 85vh; overflow-y: auto;">
+            <span class="close-auth-modal" id="close-account-modal">&times;</span>
+            
+            <div id="seccion-mi-cuenta" class="account-profile-box" style="display: none; border: none; padding: 0; margin-bottom: 20px;">
+                <h3 class="account-title"><i class="fa-solid fa-user-gear icon-cyan"></i> Gestión de Mi Cuenta</h3>
+                <p class="account-subtitle">Administra la seguridad de tus accesos al sistema.</p>
+                <hr class="account-divider">
+                <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: 15px;">
+                    <button onclick="solicitarCambioContrasena()" class="btn-account btn-cyan">
+                        <i class="fa-solid fa-key"></i> Cambiar Mi Contraseña
+                    </button>
+                    <button onclick="autoEliminarCuenta()" class="btn-account btn-danger">
+                        <i class="fa-solid fa-user-slash"></i> Eliminar Mi Cuenta
+                    </button>
+                </div>
+            </div>
+
+            <div id="panel-admin-exclusivo" class="admin-panel-box" style="display: none; border: none; padding: 20px 0 0 0; border-top: 1px solid #333;">
+                <h3 class="admin-title"><i class="fa-solid fa-shield-halved"></i> Panel Exclusivo de Administración</h3>
+                <p class="admin-subtitle">Lista de usuarios registrados globales en la base de datos:</p>
+                
+                <div class="table-responsive" style="margin-top: 15px;">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Usuario</th>
+                                <th>Correo Electrónico</th>
+                                <th>Rol de Sistema</th>
+                                <th class="text-center">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabla-usuarios-admin">
+                            </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <div id="video-modal" class="modal">
         <div class="modal-content">

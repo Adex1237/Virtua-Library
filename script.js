@@ -9,7 +9,6 @@ const coloresCategorias = {
     videos: "linear-gradient(135deg, #ff4b2b 0%, #ff416c 100%)",     
     audio: "linear-gradient(135deg, #11998e 0%, #38ef7d 100%)",     
     imagenes: "linear-gradient(135deg, #2193b0 0%, #6dd5ed 100%)",  
-    juegos: "linear-gradient(135deg, #f857a6 0%, #ff5858 100%)",    
     otros: "linear-gradient(135deg, #4158d0 0%, #c850c0 46%, #ffcc70 100%)",
     "mis-archivos": "linear-gradient(135deg, #3b52ff 0%, #2193b0 100%)",
     agregar: "linear-gradient(135deg, #11998e 0%, #1ee596 100%)" 
@@ -36,7 +35,6 @@ async function cargarDatosDesdeDrive() {
         document.getElementById("badge-videos").textContent = datos.contadores.videos;
         document.getElementById("badge-audio").textContent = datos.contadores.audio;
         document.getElementById("badge-imagenes").textContent = datos.contadores.imagenes;
-        document.getElementById("badge-juegos").textContent = datos.contadores.juegos;
         document.getElementById("badge-otros").textContent = datos.contadores.otros;
 
         renderizarTarjetas();
@@ -52,19 +50,17 @@ function renderizarTarjetas() {
     contenedor.innerHTML = "";
     const usuarioLogueado = localStorage.getItem("sesion-usuario") || "Invitado";
 
-    // === VISTA: MIS ARCHIVOS (CON ICONOS EN LAS FILAS) ===
+    // === VISTA: MIS ARCHIVOS ===
     if (categoriaActual === "mis-archivos") {
         const misArchivos = baseDeDatosArchivos.filter(arc => arc.propietario === usuarioLogueado);
-        const categoriasOrdenadas = ["documentos", "videos", "audio", "imagenes", "juegos", "otros"];
+        const categoriasOrdenadas = ["documentos", "videos", "audio", "imagenes", "otros"];
         let filasHTML = "";
         
-        // Mapeo de iconos específicos para cada fila de tus archivos
         const iconosFilas = {
             documentos: "fa-file-lines",
             videos: "fa-video",
             audio: "fa-music",
             imagenes: "fa-image",
-            juegos: "fa-gamepad",
             otros: "fa-ellipsis"
         };
 
@@ -103,7 +99,7 @@ function renderizarTarjetas() {
         return;
     }
 
-    // === VISTA: AGREGAR (CON EL BOTÓN DE SUBIR CORREGIDO Y CON ICONO) ===
+    // === VISTA: AGREGAR ===
     if (categoriaActual === "agregar") {
         contenedor.innerHTML = `
             <div class="manager-container compact-view">
@@ -121,7 +117,6 @@ function renderizarTarjetas() {
                                 <option value="videos">Videos</option>
                                 <option value="audio">Audio</option>
                                 <option value="imagenes">Imágenes</option>
-                                <option value="juegos">Juegos</option>
                                 <option value="otros">Otros</option>
                             </select>
                         </div>
@@ -161,7 +156,6 @@ function renderizarTarjetas() {
 
         let elementoVisual = "";
         
-        // CORRECCIÓN: Usar iframe con preview para evitar el bloqueo de imágenes de Google Drive
         if (archivo.categoria === "imagenes") {
             const urlPreviewImagen = `https://drive.google.com/file/d/${archivo.id}/preview`;
             elementoVisual = `
@@ -188,11 +182,9 @@ function renderizarTarjetas() {
             </div>
         `;
 
-        // MANEJADORES DE CLIC ASIGNADOS CORRECHAMENTE
         if (archivo.categoria === "videos") {
             card.addEventListener("click", () => abrirReproductorVideo(archivo.id, archivo.nombre));
         } else if (archivo.categoria === "imagenes") {
-            // NUEVO: Abre el visor para imágenes utilizando la nueva función
             card.addEventListener("click", () => abrirVisorImagen(archivo.id, archivo.nombre));
         }
 
@@ -200,12 +192,10 @@ function renderizarTarjetas() {
     });
 }
 
-// NUEVA FUNCIÓN: Abre la ventana flotante para la Imagen de manera similar al video
 function abrirVisorImagen(idArchivo, nombreImagen) {
     const modal = document.getElementById("video-modal");
     const container = modal.querySelector(".video-container");
     
-    // Cargamos el iframe de previsualización para que la imagen se adapte perfectamente al modal existente
     container.innerHTML = `
         <iframe src="https://drive.google.com/file/d/${idArchivo}/preview" 
                 style="width:100%; height:100%; border:none;" 
@@ -273,7 +263,6 @@ function inicializarBusqueda() {
     });
 }
 
-// CORRECCIÓN DEL MODO OSCURO (INTERCAMBIO REPARADO)
 function inicializarModoOscuro() {
     const botonToggle = document.getElementById("dark-mode-toggle");
     const iconoBoton = botonToggle.querySelector("i");
@@ -302,7 +291,6 @@ function inicializarModoOscuro() {
     });
 }
 
-// Envío seguro de credenciales a tu servidor en Bash
 async function ejecutarAutenticacion(payload) {
     try {
         const respuesta = await fetch(URL_BACKEND_BASH, {
@@ -314,14 +302,11 @@ async function ejecutarAutenticacion(payload) {
         
         if (resultado.estatus === "ok") {
             if (payload.accion === "login") {
-                // 1. Guardamos los datos en la memoria del navegador
                 localStorage.setItem("sesion-usuario", resultado.usuario);
                 localStorage.setItem("sesion-rol", resultado.rol); 
                 
-                // 2. CAMBIO: Quitamos el alert de bienvenida y cerramos el modal directamente
                 document.getElementById("login-modal").style.display = "none";
                 
-                // 3. CAMBIO: Actualizamos la interfaz para mostrar el nombre del usuario de inmediato
                 actualizarBotonUsuario();
                 aplicarRestriccionesDeModulo();
             } else {
@@ -338,14 +323,12 @@ async function ejecutarAutenticacion(payload) {
     }
 }
 
-// Función para cambiar el texto de "Ingresar" por el nombre del usuario conectado
 function actualizarBotonUsuario() {
     const usuarioLogueado = localStorage.getItem("sesion-usuario");
     const botonAuth = document.getElementById("auth-modal-trigger");
     const dropdown = document.getElementById("logout-dropdown");
     
     if (usuarioLogueado) {
-        // Si hay una sesión activa, metemos el icono de usuario verificado y la flecha de menú
         botonAuth.innerHTML = `
             <i class="fa-solid fa-user-check" style="color: #38ef7d;"></i>
             <span>${usuarioLogueado}</span>
@@ -353,21 +336,18 @@ function actualizarBotonUsuario() {
         `;
         botonAuth.title = "Opciones de cuenta";
     } else {
-        // Si no hay sesión, dejamos el botón original de ingresar
         botonAuth.innerHTML = `
             <i class="fa-solid fa-user-gear"></i>
             <span>Ingresar</span>
         `;
         botonAuth.title = "Acceder a la cuenta";
-        dropdown.style.display = "none"; // Asegura ocultar el menú si no hay usuario
+        dropdown.style.display = "none";
     }
 }
 
 function aplicarRestriccionesDeModulo() {
     const botonesCategorias = document.querySelectorAll(".btn-category");
-    
     botonesCategorias.forEach(boton => {
-        // Forzamos a que todos los botones se muestren siempre en formato flex
         boton.style.display = "flex"; 
     });
 }
@@ -385,9 +365,8 @@ function inicializarModalesAuth() {
     const linkARegistro = document.getElementById("go-to-register");
     const linkALogin = document.getElementById("go-to-login");
 
-    // INTERRUPTOR INTELIGENTE: Si hay usuario abre/cierra el menú flotante, si no, abre el login
     btnAbrirLogin.addEventListener("click", (e) => {
-        e.stopPropagation(); // Evita que el evento "click" global cierre el menú de inmediato
+        e.stopPropagation();
         const usuarioLogueado = localStorage.getItem("sesion-usuario");
         if (usuarioLogueado) {
             dropdown.style.display = dropdown.style.display === "block" ? "none" : "block";
@@ -396,24 +375,19 @@ function inicializarModalesAuth() {
         }
     });
 
-    // ACCIÓN DE CERRAR SESIÓN
     btnCerrarSesion.addEventListener("click", (e) => {
         e.preventDefault();
-        // Borramos los datos guardados en el navegador
         localStorage.removeItem("sesion-usuario");
         localStorage.removeItem("sesion-rol");
         
-        // Reiniciamos la interfaz
         dropdown.style.display = "none";
         actualizarBotonUsuario();
         aplicarRestriccionesDeModulo();
         
-        // Regresa automáticamente a la pestaña "todos"
         document.querySelector('[data-category="todos"]').click();
         alert("Sesión cerrada correctamente.");
     });
 
-    // Cerrar el menú flotante si el usuario hace clic en cualquier otra parte de la pantalla
     window.addEventListener("click", () => {
         dropdown.style.display = "none";
     });
@@ -428,7 +402,6 @@ function inicializarModalesAuth() {
         e.preventDefault(); registerModal.style.display = "none"; loginModal.style.display = "flex";
     });
 
-    // Captura del Formulario de Login
     loginModal.querySelector("form").addEventListener("submit", (e) => {
         e.preventDefault();
         const inputs = loginModal.querySelectorAll("input");
@@ -439,7 +412,6 @@ function inicializarModalesAuth() {
         });
     });
 
-    // Captura del Formulario de Registro
     registerModal.querySelector("form").addEventListener("submit", (e) => {
         e.preventDefault();
         const inputs = registerModal.querySelectorAll("input");

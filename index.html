@@ -96,15 +96,17 @@
 
     <div id="content"></div>
 
-    <div id="account-modal" class="auth-modal" style="display: none;">
-        <div class="auth-modal-content" style="max-width: 700px; max-height: 85vh; overflow-y: auto;">
+    <div id="account-modal" class="auth-modal account-modal-overlay">
+        <div class="auth-modal-content account-modal-container">
             <span class="close-auth-modal" id="close-account-modal">&times;</span>
             
-            <div id="seccion-mi-cuenta" class="account-profile-box" style="display: none; border: none; padding: 0; margin-bottom: 20px;">
-                <h3 class="account-title"><i class="fa-solid fa-user-gear icon-cyan"></i> Gestión de Mi Cuenta</h3>
+            <div id="seccion-mi-cuenta" class="account-profile-box account-modal-section">
+                <h3 class="account-title">
+                    <i class="fa-solid fa-user-gear icon-cyan"></i> Gestión de Mi Cuenta
+                </h3>
                 <p class="account-subtitle">Administra la seguridad de tus accesos al sistema.</p>
                 <hr class="account-divider">
-                <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: 15px;">
+                <div class="account-btn-group">
                     <button onclick="solicitarCambioContrasena()" class="btn-account btn-cyan">
                         <i class="fa-solid fa-key"></i> Cambiar Mi Contraseña
                     </button>
@@ -114,11 +116,13 @@
                 </div>
             </div>
 
-            <div id="panel-admin-exclusivo" class="admin-panel-box" style="display: none; border: none; padding: 20px 0 0 0; border-top: 1px solid #333;">
-                <h3 class="admin-title"><i class="fa-solid fa-shield-halved"></i> Panel Exclusivo de Administración</h3>
+            <div id="panel-admin-exclusivo" class="admin-panel-box admin-modal-section">
+                <h3 class="admin-title">
+                    <i class="fa-solid fa-shield-halved"></i> Panel Exclusivo de Administración
+                </h3>
                 <p class="admin-subtitle">Lista de usuarios registrados globales en la base de datos:</p>
                 
-                <div class="table-responsive" style="margin-top: 15px;">
+                <div class="table-responsive admin-table-container">
                     <table class="admin-table">
                         <thead>
                             <tr>

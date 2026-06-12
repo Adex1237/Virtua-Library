@@ -880,3 +880,122 @@ body.dark-mode .user-file-item:hover {
 body.dark-mode .btn-upload-submit {
     background: linear-gradient(135deg, #0f837a 0%, #19c27f 100%);
 }
+
+.account-dashboard-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+/* Caja de Mi Cuenta */
+.account-profile-box {
+    display: none; /* Se controla con JS */
+    padding: 20px;
+    background: #1e1e1e;
+    border-radius: 12px;
+    margin: 20px 0;
+    border: 1px solid #333;
+}
+
+.account-title {
+    color: #fff;
+    margin-bottom: 5px;
+}
+
+.account-subtitle {
+    color: #888;
+    font-size: 14px;
+    margin-bottom: 15px;
+}
+
+.account-divider {
+    border: 0;
+    border-top: 1px solid #222;
+    margin-bottom: 15px;
+}
+
+/* Botones de acción */
+.btn-account {
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 8px;
+    cursor: pointer;
+    margin-right: 10px;
+    font-weight: 500;
+    transition: background 0.2s ease-in-out;
+}
+
+.btn-cyan {
+    background: #00b4db;
+}
+.btn-cyan:hover {
+    background: #0093b3;
+}
+
+.btn-danger {
+    background: #ff4b2b;
+}
+.btn-danger:hover {
+    background: #d93e20;
+}
+
+.icon-cyan {
+    color: #00b4db;
+}
+
+/* Panel de Administración */
+.admin-panel-box {
+    display: none; /* Se controla con JS */
+    padding: 20px;
+    background: #181818;
+    border: 2px solid #ff4b2b;
+    border-radius: 12px;
+    margin: 20px 0;
+}
+
+.admin-title {
+    color: #ff4b2b;
+    margin-bottom: 5px;
+}
+
+.admin-subtitle {
+    color: #aaa;
+    font-size: 14px;
+}
+
+/* Tabla de Usuarios */
+.table-responsive {
+    overflow-x: auto;
+    margin-top: 15px;
+}
+
+.admin-table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+    min-width: 500px;
+}
+
+.admin-table thead tr {
+    background: #222;
+    color: #fff;
+}
+
+.admin-table th, 
+.admin-table td {
+    padding: 12px;
+    border-bottom: 1px solid #222;
+}
+
+.admin-table th {
+    border-bottom: 2px solid #333;
+}
+
+.admin-table td {
+    color: #fff;
+}
+
+.text-center {
+    text-align: center;
+}

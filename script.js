@@ -161,9 +161,14 @@ function renderizarTarjetas() {
 
         let elementoVisual = "";
         
+        // CORRECCIÓN: Usar iframe con preview para evitar el bloqueo de imágenes de Google Drive
         if (archivo.categoria === "imagenes") {
-            const urlImagen = `https://drive.google.com/uc?export=view&id=${archivo.id}`;
-            elementoVisual = `<img src="${urlImagen}" alt="${archivo.nombre}" style="width:100%; height:180px; object-fit:cover; border-radius:16px 16px 0 0;">`;
+            const urlPreviewImagen = `https://drive.google.com/file/d/${archivo.id}/preview`;
+            elementoVisual = `
+                <div style="width:100%; height:180px; position:relative; overflow:hidden; border-radius:16px 16px 0 0;">
+                    <iframe src="${urlPreviewImagen}" scrolling="no" style="width:100%; height:100%; border:none; pointer-events: none;"></iframe>
+                    <div style="position:absolute; top:0; left:0; width:100%; height:100%; background:transparent;"></div>
+                </div>`;
         } else if (archivo.categoria === "videos") {
             elementoVisual = `
                 <div style="width:100%; height:180px; background:#1e1e1e; display:flex; align-items:center; justify-content:center; border-radius:16px 16px 0 0; position:relative;">
@@ -183,12 +188,31 @@ function renderizarTarjetas() {
             </div>
         `;
 
+        // MANEJADORES DE CLIC ASIGNADOS CORRECHAMENTE
         if (archivo.categoria === "videos") {
             card.addEventListener("click", () => abrirReproductorVideo(archivo.id, archivo.nombre));
+        } else if (archivo.categoria === "imagenes") {
+            // NUEVO: Abre el visor para imágenes utilizando la nueva función
+            card.addEventListener("click", () => abrirVisorImagen(archivo.id, archivo.nombre));
         }
 
         contenedor.appendChild(card);
     });
+}
+
+// NUEVA FUNCIÓN: Abre la ventana flotante para la Imagen de manera similar al video
+function abrirVisorImagen(idArchivo, nombreImagen) {
+    const modal = document.getElementById("video-modal");
+    const container = modal.querySelector(".video-container");
+    
+    // Cargamos el iframe de previsualización para que la imagen se adapte perfectamente al modal existente
+    container.innerHTML = `
+        <iframe src="https://drive.google.com/file/d/${idArchivo}/preview" 
+                style="width:100%; height:100%; border:none;" 
+                allow="autoplay">
+        </iframe>
+    `;
+    modal.style.display = "flex";
 }
 
 function abrirReproductorVideo(idArchivo, nombreVideo) {

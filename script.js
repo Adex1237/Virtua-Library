@@ -1,5 +1,5 @@
 // ====== CONFIGURACIÓN DE APIS SEPARADAS ======
-const URL_API_ARCHIVOS = "https://script.google.com/macros/s/AKfycbziXvFsUOWxO0luoU1YEx86qOV9KIrr7rW4PmIptemO6uvs2RgaihdSZBqMaCE9DCI25g/exec"; 
+const URL_API_ARCHIVOS = "https://script.google.com/macros/s/AKfycbyU1_OX6GhnXGVD3U85pVF6WACZOobQzeO1JKlSuhoWn1PbHKxjZgz9immhkqHHwYKMzA/exec"; 
 const URL_BACKEND_BASH = "http://localhost:8585";
 // =============================================
 
@@ -22,6 +22,7 @@ let player = null;
 // Carga archivos desde tu script de Drive original
 async function cargarDatosDesdeDrive() {
     const contenedor = document.getElementById("content");
+    if (!contenedor) return;
     contenedor.innerHTML = "<p style='color: #777; padding: 20px; grid-column: 1/-1; text-align: center;'>Conectando con Google Drive...</p>";
 
     try {
@@ -30,12 +31,13 @@ async function cargarDatosDesdeDrive() {
 
         baseDeDatosArchivos = datos.archivos;
 
-        document.getElementById("badge-todos").textContent = datos.contadores.todos;
-        document.getElementById("badge-documentos").textContent = datos.contadores.documentos;
-        document.getElementById("badge-videos").textContent = datos.contadores.videos;
-        document.getElementById("badge-audio").textContent = datos.contadores.audio;
-        document.getElementById("badge-imagenes").textContent = datos.contadores.imagenes;
-        document.getElementById("badge-otros").textContent = datos.contadores.otros;
+        // Actualizar contadores en la interfaz (Omitiendo juegos)
+        if(document.getElementById("badge-todos")) document.getElementById("badge-todos").textContent = datos.contadores.todos;
+        if(document.getElementById("badge-documentos")) document.getElementById("badge-documentos").textContent = datos.contadores.documentos;
+        if(document.getElementById("badge-videos")) document.getElementById("badge-videos").textContent = datos.contadores.videos;
+        if(document.getElementById("badge-audio")) document.getElementById("badge-audio").textContent = datos.contadores.audio;
+        if(document.getElementById("badge-imagenes")) document.getElementById("badge-imagenes").textContent = datos.contadores.imagenes;
+        if(document.getElementById("badge-otros")) document.getElementById("badge-otros").textContent = datos.contadores.otros;
 
         renderizarTarjetas();
 
@@ -47,23 +49,22 @@ async function cargarDatosDesdeDrive() {
 
 function renderizarTarjetas() {
     const contenedor = document.getElementById("content");
+    if (!contenedor) return;
     contenedor.innerHTML = "";
     
-    // Detectamos si el usuario real inició sesión o si está en modo Invitado
     const sesionUsuario = localStorage.getItem("sesion-usuario");
     const usuarioLogueado = sesionUsuario || "Invitado";
 
     // === VISTA: MIS ARCHIVOS ===
     if (categoriaActual === "mis-archivos") {
-        // Bloqueo si no ha iniciado sesión
         if (!sesionUsuario) {
             contenedor.innerHTML = `
-                <div class="manager-container compact-view" style="text-align: center; padding: 40px 20px;">
-                    <div class="upload-form-card" style="max-width: 500px; margin: 0 auto;">
+                <div class="manager-container compact-view" style="text-align: center; padding: 40px 20px; width: 100%; grid-column: 1/-1;">
+                    <div class="upload-form-card" style="max-width: 500px; margin: 0 auto; background: #1e1e1e; padding: 30px; border-radius: 16px;">
                         <i class="fa-solid fa-folder-lock" style="font-size: 50px; color: #3b52ff; margin-bottom: 15px;"></i>
-                        <h3 style="margin-bottom: 10px;">Acceso Restringido</h3>
+                        <h3 style="margin-bottom: 10px; color: #fff;">Acceso Restringido</h3>
                         <p style="color: #aaa; margin-bottom: 20px; font-size: 14px;">Inicia sesión para ver tus archivos personales guardados en la nube.</p>
-                        <button class="btn-upload-submit" onclick="document.getElementById('login-modal').style.display = 'flex'" style="background: linear-gradient(135deg, #3b52ff 0%, #2193b0 100%);">
+                        <button class="btn-upload-submit" onclick="document.getElementById('login-modal').style.display = 'flex'" style="background: linear-gradient(135deg, #3b52ff 0%, #2193b0 100%); color:white; border:none; padding:10px 20px; border-radius:8px; cursor:pointer;">
                             <i class="fa-solid fa-right-to-bracket"></i> Iniciar Sesión
                         </button>
                     </div>
@@ -72,7 +73,6 @@ function renderizarTarjetas() {
             return;
         }
 
-        // Si ya inició sesión, renderiza sus archivos normalmente
         const misArchivos = baseDeDatosArchivos.filter(arc => arc.propietario === usuarioLogueado);
         const categoriasOrdenadas = ["documentos", "videos", "audio", "imagenes", "otros"];
         let filasHTML = "";
@@ -110,7 +110,7 @@ function renderizarTarjetas() {
         });
 
         contenedor.innerHTML = `
-            <div class="manager-container">
+            <div class="manager-container" style="width: 100%; grid-column: 1/-1;">
                 <h3 class="manager-title">
                     <i class="fa-solid fa-folder-user"></i> Repositorio de: <strong>${usuarioLogueado}</strong>
                 </h3>
@@ -122,15 +122,14 @@ function renderizarTarjetas() {
 
     // === VISTA: AGREGAR ===
     if (categoriaActual === "agregar") {
-        // Bloqueo si no ha iniciado sesión
         if (!sesionUsuario) {
             contenedor.innerHTML = `
-                <div class="manager-container compact-view" style="text-align: center; padding: 40px 20px;">
-                    <div class="upload-form-card" style="max-width: 500px; margin: 0 auto;">
+                <div class="manager-container compact-view" style="text-align: center; padding: 40px 20px; width: 100%; grid-column: 1/-1;">
+                    <div class="upload-form-card" style="max-width: 500px; margin: 0 auto; background: #1e1e1e; padding: 30px; border-radius: 16px;">
                         <i class="fa-solid fa-cloud-lock" style="font-size: 50px; color: #11998e; margin-bottom: 15px;"></i>
-                        <h3 style="margin-bottom: 10px;">¿Quieres subir contenido?</h3>
+                        <h3 style="margin-bottom: 10px; color: #fff;">¿Quieres subir contenido?</h3>
                         <p style="color: #aaa; margin-bottom: 20px; font-size: 14px;">Inicia sesión para agregar archivos a la biblioteca y gestionar tu propio contenido.</p>
-                        <button class="btn-upload-submit" onclick="document.getElementById('login-modal').style.display = 'flex'" style="background: linear-gradient(135deg, #11998e 0%, #1ee596 100%);">
+                        <button class="btn-upload-submit" onclick="document.getElementById('login-modal').style.display = 'flex'" style="background: linear-gradient(135deg, #11998e 0%, #1ee596 100%); color:white; border:none; padding:10px 20px; border-radius:8px; cursor:pointer;">
                             <i class="fa-solid fa-right-to-bracket"></i> Iniciar Sesión
                         </button>
                     </div>
@@ -139,19 +138,18 @@ function renderizarTarjetas() {
             return;
         }
 
-        // Si ya inició sesión, muestra el formulario de subida
         contenedor.innerHTML = `
-            <div class="manager-container compact-view">
+            <div class="manager-container compact-view" style="width: 100%; grid-column: 1/-1;">
                 <div class="upload-form-card">
                     <h3><i class="fa-solid fa-cloud-arrow-up"></i> Agregar Nuevo Archivo</h3>
-                    <form onsubmit="event.preventDefault(); alert('Subida simulada con éxito.');">
+                    <form id="form-subir-archivo">
                         <div class="form-group">
                             <label>Nombre del Archivo</label>
-                            <input type="text" placeholder="Escribe el título..." required>
+                            <input type="text" id="upload-name" placeholder="Escribe el título..." required>
                         </div>
                         <div class="form-group">
                             <label>Categoría</label>
-                            <select required>
+                            <select id="upload-category" required>
                                 <option value="documentos">Documentos</option>
                                 <option value="videos">Videos</option>
                                 <option value="audio">Audio</option>
@@ -163,16 +161,27 @@ function renderizarTarjetas() {
                             <label class="file-label-btn" for="simple-file">
                                 <i class="fa-solid fa-paperclip"></i> Elegir Archivo
                             </label>
-                            <input type="file" id="simple-file" style="display:none;" onchange="document.getElementById('simple-file-text').textContent = this.files[0].name">
+                            <input type="file" id="simple-file" style="display:none;" required>
                             <span id="simple-file-text" class="file-status-text">Ningún archivo seleccionado</span>
                         </div>
-                        <button type="submit" class="btn-upload-submit">
-                            <i class="fa-solid fa-arrow-up-from-bracket"></i> Subir Archivo
+                        <button type="submit" class="btn-upload-submit" id="btn-submit-upload">
+                            <i class="fa-solid fa-arrow-up-from-bracket"></i> Subir Archivo Real
                         </button>
                     </form>
                 </div>
             </div>
         `;
+
+        document.getElementById("simple-file").addEventListener("change", function() {
+            if (this.files[0]) {
+                document.getElementById('simple-file-text').textContent = this.files[0].name;
+                if(!document.getElementById("upload-name").value) {
+                    document.getElementById("upload-name").value = this.files[0].name.split('.').slice(0, -1).join('.');
+                }
+            }
+        });
+
+        document.getElementById("form-subir-archivo").addEventListener("submit", procesarSubidaArchivoReal);
         return;
     }
 
@@ -231,35 +240,88 @@ function renderizarTarjetas() {
     });
 }
 
+function procesarSubidaArchivoReal(evento) {
+    evento.preventDefault();
+    
+    const boton = document.getElementById("btn-submit-upload");
+    const inputArchivo = document.getElementById("simple-file");
+    const nombreInput = document.getElementById("upload-name").value.trim();
+    const categoriaInput = document.getElementById("upload-category").value;
+    
+    if (!inputArchivo.files || inputArchivo.files.length === 0) {
+        alert("Por favor, selecciona un archivo primero.");
+        return;
+    }
+    
+    const archivo = inputArchivo.files[0];
+    
+    // Bloquear botón y mostrar spinner de carga
+    boton.disabled = true;
+    boton.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Subiendo archivo...`;
+    
+    const lector = new FileReader();
+    // Leemos el archivo como DataURL para extraer el Base64 limpio
+    lector.readAsDataURL(archivo);
+    
+    lector.onload = async () => {
+        try {
+            const cadenaBase64 = lector.result.split(",")[1];
+            const propietarioActivo = localStorage.getItem("sesion-usuario") || "Administrador";
+            
+            // Reconstruimos el nombre con su extensión real (.pdf, .jpg, etc.)
+            const extension = archivo.name.includes('.') ? archivo.name.substring(archivo.name.lastIndexOf('.')) : '';
+            const nombreCompleto = nombreInput + extension;
+
+            // Pasamos las variables de texto en la URL para que Google Apps Script las reciba en e.parameter
+            const urlConParametros = `${URL_API_ARCHIVOS}?nombreArchivo=${encodeURIComponent(nombreCompleto)}&categoria=${categoriaInput}&tipoMime=${encodeURIComponent(archivo.type)}&propietario=${encodeURIComponent(propietarioActivo)}`;
+            
+            // Enviamos únicamente el texto del archivo en el cuerpo (text/plain) para evitar conflictos de CORS
+            const respuesta = await fetch(urlConParametros, {
+                method: "POST",
+                mode: "no-cors", // Evita que el navegador bloquee la petición por seguridad de dominios
+                headers: {
+                    "Content-Type": "text/plain"
+                },
+                body: cadenaBase64
+            });
+            
+            // Al usar "no-cors", el navegador oculta la respuesta por privacidad. 
+            // Añadimos una espera de 3.5 segundos para dar tiempo a que Google registre el archivo e indexe el ID en Drive.
+            setTimeout(async () => {
+                alert("¡Archivo enviado con éxito! Se ha registrado en tu biblioteca virtual.");
+                await cargarDatosDesdeDrive(); // Recarga la lista de tarjetas
+                
+                // Redirecciona automáticamente a la pestaña "Todos"
+                const btnTodos = document.querySelector('[data-category="todos"]');
+                if (btnTodos) btnTodos.click();
+            }, 3500);
+
+        } catch (error) {
+            console.error("Error en la subida:", error);
+            alert("Hubo un problema de comunicación al intentar enviar el archivo.");
+            boton.disabled = false;
+            boton.innerHTML = `<i class="fa-solid fa-arrow-up-from-bracket"></i> Subir Archivo Real`;
+        }
+    };
+}
+
 function abrirVisorImagen(idArchivo, nombreImagen) {
     const modal = document.getElementById("video-modal");
     const container = modal.querySelector(".video-container");
-    
-    container.innerHTML = `
-        <iframe src="https://drive.google.com/file/d/${idArchivo}/preview" 
-                style="width:100%; height:100%; border:none;" 
-                allow="autoplay">
-        </iframe>
-    `;
+    container.innerHTML = `<iframe src="https://drive.google.com/file/d/${idArchivo}/preview" style="width:100%; height:100%; border:none;" allow="autoplay"></iframe>`;
     modal.style.display = "flex";
 }
 
 function abrirReproductorVideo(idArchivo, nombreVideo) {
     const modal = document.getElementById("video-modal");
     const container = modal.querySelector(".video-container");
-    
-    container.innerHTML = `
-        <iframe src="https://drive.google.com/file/d/${idArchivo}/preview" 
-                style="width:100%; height:100%; border:none;" 
-                allow="autoplay; encrypted-media" 
-                allowfullscreen>
-        </iframe>
-    `;
+    container.innerHTML = `<iframe src="https://drive.google.com/file/d/${idArchivo}/preview" style="width:100%; height:100%; border:none;" allow="autoplay; encrypted-media" allowfullscreen></iframe>`;
     modal.style.display = "flex";
 }
 
 function inicializarEventosModal() {
     const modal = document.getElementById("video-modal");
+    if (!modal) return;
     const botonCerrar = modal.querySelector(".close-modal");
 
     const cerrar = () => {
@@ -267,7 +329,7 @@ function inicializarEventosModal() {
         modal.querySelector(".video-container").innerHTML = ""; 
     };
 
-    botonCerrar.addEventListener("click", cerrar);
+    if(botonCerrar) botonCerrar.addEventListener("click", cerrar);
     modal.addEventListener("click", (e) => {
         if (e.target === modal) cerrar();
     });
@@ -284,7 +346,7 @@ function inicializarFiltros() {
             botones.forEach(b => b.classList.remove("active"));
             boton.classList.add("active");
 
-            if (coloresCategorias[categoriaActual]) {
+            if (coloresCategorias[categoriaActual] && header) {
                 header.style.background = coloresCategorias[categoriaActual];
                 document.documentElement.style.setProperty('--color-activo', coloresCategorias[categoriaActual]);
             }
@@ -296,6 +358,7 @@ function inicializarFiltros() {
 
 function inicializarBusqueda() {
     const inputBusqueda = document.querySelector("#search-container input");
+    if (!inputBusqueda) return;
     inputBusqueda.addEventListener("input", (evento) => {
         textoBusquedaActual = evento.target.value;
         renderizarTarjetas();
@@ -304,6 +367,7 @@ function inicializarBusqueda() {
 
 function inicializarModoOscuro() {
     const botonToggle = document.getElementById("dark-mode-toggle");
+    if (!botonToggle) return;
     const iconoBoton = botonToggle.querySelector("i");
     const cuerpo = document.body;
 
@@ -311,20 +375,19 @@ function inicializarModoOscuro() {
     
     if (modoOscuroGuardado === "activado") {
         cuerpo.classList.add("dark-mode");
-        iconoBoton.classList.replace("fa-moon", "fa-sun");
+        if(iconoBoton) iconoBoton.classList.replace("fa-moon", "fa-sun");
     } else {
         cuerpo.classList.remove("dark-mode");
-        iconoBoton.classList.replace("fa-sun", "fa-moon");
+        if(iconoBoton) iconoBoton.classList.replace("fa-sun", "fa-moon");
     }
 
     botonToggle.addEventListener("click", () => {
         cuerpo.classList.toggle("dark-mode");
-        
         if (cuerpo.classList.contains("dark-mode")) {
-            iconoBoton.classList.replace("fa-moon", "fa-sun");
+            if(iconoBoton) iconoBoton.classList.replace("fa-moon", "fa-sun");
             localStorage.setItem("modo-oscuro", "activado");
         } else {
-            iconoBoton.classList.replace("fa-sun", "fa-moon");
+            if(iconoBoton) iconoBoton.classList.replace("fa-sun", "fa-moon");
             localStorage.setItem("modo-oscuro", "desactivado");
         }
     });
@@ -344,17 +407,15 @@ async function ejecutarAutenticacion(payload) {
                 localStorage.setItem("sesion-usuario", resultado.usuario);
                 localStorage.setItem("sesion-rol", resultado.rol); 
                 
-                document.getElementById("login-modal").style.display = "none";
+                if(document.getElementById("login-modal")) document.getElementById("login-modal").style.display = "none";
                 
                 actualizarBotonUsuario();
                 aplicarRestriccionesDeModulo();
-                
-                // NUEVO: Al iniciar sesión exitosamente, fuerza el re-renderizado de la vista para mostrar el contenido desbloqueado
                 renderizarTarjetas();
             } else {
                 alert("¡Registro exitoso! Ya puedes iniciar sesión.");
-                document.getElementById("register-modal").style.display = "none";
-                document.getElementById("login-modal").style.display = "flex";
+                if(document.getElementById("register-modal")) document.getElementById("register-modal").style.display = "none";
+                if(document.getElementById("login-modal")) document.getElementById("login-modal").style.display = "flex";
             }
         } else {
             alert(resultado.mensaje);
@@ -369,6 +430,7 @@ function actualizarBotonUsuario() {
     const usuarioLogueado = localStorage.getItem("sesion-usuario");
     const botonAuth = document.getElementById("auth-modal-trigger");
     const dropdown = document.getElementById("logout-dropdown");
+    if (!botonAuth) return;
     
     if (usuarioLogueado) {
         botonAuth.innerHTML = `
@@ -383,7 +445,7 @@ function actualizarBotonUsuario() {
             <span>Ingresar</span>
         `;
         botonAuth.title = "Acceder a la cuenta";
-        dropdown.style.display = "none";
+        if(dropdown) dropdown.style.display = "none";
     }
 }
 
@@ -407,63 +469,76 @@ function inicializarModalesAuth() {
     const linkARegistro = document.getElementById("go-to-register");
     const linkALogin = document.getElementById("go-to-login");
 
-    btnAbrirLogin.addEventListener("click", (e) => {
-        e.stopPropagation();
-        const usuarioLogueado = localStorage.getItem("sesion-usuario");
-        if (usuarioLogueado) {
-            dropdown.style.display = dropdown.style.display === "block" ? "none" : "block";
-        } else {
-            loginModal.style.display = "flex";
-        }
-    });
+    if(btnAbrirLogin) {
+        btnAbrirLogin.addEventListener("click", (e) => {
+            e.stopPropagation();
+            const usuarioLogueado = localStorage.getItem("sesion-usuario");
+            if (usuarioLogueado && dropdown) {
+                dropdown.style.display = dropdown.style.display === "block" ? "none" : "block";
+            } else if(loginModal) {
+                loginModal.style.display = "flex";
+            }
+        });
+    }
 
-    btnCerrarSesion.addEventListener("click", (e) => {
-        e.preventDefault();
-        localStorage.removeItem("sesion-usuario");
-        localStorage.removeItem("sesion-rol");
-        
-        dropdown.style.display = "none";
-        actualizarBotonUsuario();
-        aplicarRestriccionesDeModulo();
-        
-        document.querySelector('[data-category="todos"]').click();
-        alert("Sesión cerrada correctamente.");
-    });
+    if(btnCerrarSesion) {
+        btnCerrarSesion.addEventListener("click", (e) => {
+            e.preventDefault();
+            localStorage.removeItem("sesion-usuario");
+            localStorage.removeItem("sesion-rol");
+            
+            if(dropdown) dropdown.style.display = "none";
+            actualizarBotonUsuario();
+            aplicarRestriccionesDeModulo();
+            
+            const btnTodos = document.querySelector('[data-category="todos"]');
+            if(btnTodos) btnTodos.click();
+            alert("Sesión cerrada correctamente.");
+        });
+    }
 
     window.addEventListener("click", () => {
-        dropdown.style.display = "none";
+        if(dropdown) dropdown.style.display = "none";
     });
 
-    btnCerrarLogin.addEventListener("click", () => loginModal.style.display = "none");
-    btnCerrarRegister.addEventListener("click", () => registerModal.style.display = "none");
+    if(btnCerrarLogin && loginModal) btnCerrarLogin.addEventListener("click", () => loginModal.style.display = "none");
+    if(btnCerrarRegister && registerModal) btnCerrarRegister.addEventListener("click", () => registerModal.style.display = "none");
 
-    linkARegistro.addEventListener("click", (e) => {
-        e.preventDefault(); loginModal.style.display = "none"; registerModal.style.display = "flex";
-    });
-    linkALogin.addEventListener("click", (e) => {
-        e.preventDefault(); registerModal.style.display = "none"; loginModal.style.display = "flex";
-    });
-
-    loginModal.querySelector("form").addEventListener("submit", (e) => {
-        e.preventDefault();
-        const inputs = loginModal.querySelectorAll("input");
-        ejecutarAutenticacion({
-            accion: "login",
-            usuario: inputs[0].value.trim(),
-            password: inputs[1].value
+    if(linkARegistro && loginModal && registerModal) {
+        linkARegistro.addEventListener("click", (e) => {
+            e.preventDefault(); loginModal.style.display = "none"; registerModal.style.display = "flex";
         });
-    });
-
-    registerModal.querySelector("form").addEventListener("submit", (e) => {
-        e.preventDefault();
-        const inputs = registerModal.querySelectorAll("input");
-        ejecutarAutenticacion({
-            accion: "registro",
-            usuario: inputs[0].value.trim(),
-            correo: inputs[1].value.trim(),
-            password: inputs[2].value
+    }
+    if(linkALogin && registerModal && loginModal) {
+        linkALogin.addEventListener("click", (e) => {
+            e.preventDefault(); registerModal.style.display = "none"; loginModal.style.display = "flex";
         });
-    });
+    }
+
+    if(loginModal) {
+        loginModal.querySelector("form").addEventListener("submit", (e) => {
+            e.preventDefault();
+            const inputs = loginModal.querySelectorAll("input");
+            ejecutarAutenticacion({
+                accion: "login",
+                usuario: inputs[0].value.trim(),
+                password: inputs[1].value
+            });
+        });
+    }
+
+    if(registerModal) {
+        registerModal.querySelector("form").addEventListener("submit", (e) => {
+            e.preventDefault();
+            const inputs = registerModal.querySelectorAll("input");
+            ejecutarAutenticacion({
+                accion: "registro",
+                usuario: inputs[0].value.trim(),
+                correo: inputs[1].value.trim(),
+                password: inputs[2].value
+            });
+        });
+    }
 
     window.addEventListener("click", (e) => {
         if (e.target === loginModal) loginModal.style.display = "none";

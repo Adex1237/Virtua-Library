@@ -1,7 +1,6 @@
-// ====== CONFIGURACIÓN DE APIS SEPARADAS ======
+// configuracion de APIS
 const URL_API_ARCHIVOS = "https://script.google.com/macros/s/AKfycbyU1_OX6GhnXGVD3U85pVF6WACZOobQzeO1JKlSuhoWn1PbHKxjZgz9immhkqHHwYKMzA/exec"; 
 const URL_BACKEND_BASH = "https://script.google.com/macros/s/AKfycbxMwaFs6xAuni7FroDvdgoD_w7VkMWmHsYyvQ0HUPDkA3tfVOdjEqyJ0PDzcZ9AIhi1_w/exec";
-// =============================================
 
 const coloresCategorias = {
     todos: "linear-gradient(135deg, #a832ff 0%, #3b52ff 100%)",
@@ -19,7 +18,7 @@ let categoriaActual = "todos";
 let textoBusquedaActual = "";
 let player = null; 
 
-// Carga archivos desde tu script de Drive original
+// Carga archivos desde el script de Drive
 async function cargarDatosDesdeDrive() {
     const contenedor = document.getElementById("content");
     if (!contenedor) return;
@@ -31,7 +30,7 @@ async function cargarDatosDesdeDrive() {
 
         baseDeDatosArchivos = datos.archivos;
 
-        // Actualizar contadores en la interfaz (Omitiendo juegos)
+        // Actualizar contadores en la interfaz
         if(document.getElementById("badge-todos")) document.getElementById("badge-todos").textContent = datos.contadores.todos;
         if(document.getElementById("badge-documentos")) document.getElementById("badge-documentos").textContent = datos.contadores.documentos;
         if(document.getElementById("badge-videos")) document.getElementById("badge-videos").textContent = datos.contadores.videos;
@@ -55,7 +54,7 @@ function renderizarTarjetas() {
     const sesionUsuario = localStorage.getItem("sesion-usuario");
     const usuarioLogueado = sesionUsuario || "Invitado";
 
-    // === VISTA: MIS ARCHIVOS ===
+    // vista mis archivos
     if (categoriaActual === "mis-archivos") {
         if (!sesionUsuario) {
             contenedor.innerHTML = `
@@ -120,7 +119,7 @@ function renderizarTarjetas() {
         return;
     }
 
-    // === VISTA: AGREGAR ===
+    // vista agregar
     if (categoriaActual === "agregar") {
         if (!sesionUsuario) {
             contenedor.innerHTML = `
@@ -268,7 +267,7 @@ function verificarRolYDesplegarInterfaz(rolUsuario, nombreUsuario) {
     } else {
         if (seccionMiCuenta) seccionMiCuenta.style.display = "none";
         if (panelAdmin) panelAdmin.style.display = "none";
-        // Si cierra sesión, nos aseguramos de ocultar el modal completo por seguridad
+        // Si cierra sesion, nos aseguramos de ocultar el modal completo por seguridad
         const modalCuenta = document.getElementById("account-modal");
         if(modalCuenta) modalCuenta.style.display = "none";
     }
@@ -368,7 +367,7 @@ async function cargarUsuariosAdmin() {
     }
 }
 
-// Eliminar un usuario específico desde el panel de administración
+// Eliminar un usuario especifico desde el panel de administracion
 async function eliminarUsuarioDesdeAdmin(nombreUsuarioAEliminar) {
     const confirmar = confirm(`¿Estás seguro de que deseas eliminar por completo al usuario "${nombreUsuarioAEliminar}" del sistema? El acceso le será revocado de inmediato.`);
     if (!confirmar) return;
@@ -669,7 +668,7 @@ function inicializarModalesAuth() {
     const linkARegistro = document.getElementById("go-to-register");
     const linkALogin = document.getElementById("go-to-login");
 
-    // Abrir Login o alternar el menú desplegable superior
+    // Abrir Login o alternar el menu desplegable superior
     if(btnAbrirLogin) {
         btnAbrirLogin.addEventListener("click", (e) => {
             e.stopPropagation();
@@ -682,7 +681,7 @@ function inicializarModalesAuth() {
         });
     }
 
-    // NUEVO EVENTO: Abrir la ventana flotante de gestión desde la barra superior
+    // NUEVO EVENTO: Abrir la ventana flotante de gestion desde la barra superior
     if (btnAbrirConfig) {
         btnAbrirConfig.addEventListener("click", (e) => {
             e.preventDefault();

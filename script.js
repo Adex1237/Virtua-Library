@@ -1,6 +1,6 @@
 // ====== CONFIGURACIÓN DE APIS SEPARADAS ======
 const URL_API_ARCHIVOS = "https://script.google.com/macros/s/AKfycbyU1_OX6GhnXGVD3U85pVF6WACZOobQzeO1JKlSuhoWn1PbHKxjZgz9immhkqHHwYKMzA/exec"; 
-const URL_BACKEND_BASH = "http://localhost:8585";
+const URL_BACKEND_BASH = "https://script.google.com/macros/s/AKfycbxMwaFs6xAuni7FroDvdgoD_w7VkMWmHsYyvQ0HUPDkA3tfVOdjEqyJ0PDzcZ9AIhi1_w/exec";
 // =============================================
 
 const coloresCategorias = {
@@ -418,11 +418,12 @@ function inicializarModoOscuro() {
     });
 }
 
+//  Código corregido y seguro para la nube
 async function ejecutarAutenticacion(payload) {
     try {
         const respuesta = await fetch(URL_BACKEND_BASH, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 'Content-Type': 'text/plain' }, // ¡Cambio clave aquí!
             body: JSON.stringify(payload)
         });
         const resultado = await respuesta.json();
@@ -446,8 +447,8 @@ async function ejecutarAutenticacion(payload) {
             alert(resultado.mensaje);
         }
     } catch (err) {
-        console.error("Error al conectar con el cifrador Bash:", err);
-        alert("Error de conexión con el servidor de autenticación local.");
+        console.error("Error al conectar con la autenticación en la nube:", err);
+        alert("Hubo un problema de comunicación con el servidor de credenciales.");
     }
 }
 

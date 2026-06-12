@@ -681,7 +681,7 @@ function inicializarModalesAuth() {
         });
     }
 
-    // NUEVO EVENTO: Abrir la ventana flotante de gestion desde la barra superior
+    // Abrir la ventana flotante de gestion desde la barra superior
     if (btnAbrirConfig) {
         btnAbrirConfig.addEventListener("click", (e) => {
             e.preventDefault();

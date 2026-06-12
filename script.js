@@ -48,10 +48,31 @@ async function cargarDatosDesdeDrive() {
 function renderizarTarjetas() {
     const contenedor = document.getElementById("content");
     contenedor.innerHTML = "";
-    const usuarioLogueado = localStorage.getItem("sesion-usuario") || "Invitado";
+    
+    // Detectamos si el usuario real inició sesión o si está en modo Invitado
+    const sesionUsuario = localStorage.getItem("sesion-usuario");
+    const usuarioLogueado = sesionUsuario || "Invitado";
 
     // === VISTA: MIS ARCHIVOS ===
     if (categoriaActual === "mis-archivos") {
+        // Bloqueo si no ha iniciado sesión
+        if (!sesionUsuario) {
+            contenedor.innerHTML = `
+                <div class="manager-container compact-view" style="text-align: center; padding: 40px 20px;">
+                    <div class="upload-form-card" style="max-width: 500px; margin: 0 auto;">
+                        <i class="fa-solid fa-folder-lock" style="font-size: 50px; color: #3b52ff; margin-bottom: 15px;"></i>
+                        <h3 style="margin-bottom: 10px;">Acceso Restringido</h3>
+                        <p style="color: #aaa; margin-bottom: 20px; font-size: 14px;">Inicia sesión para ver tus archivos personales guardados en la nube.</p>
+                        <button class="btn-upload-submit" onclick="document.getElementById('login-modal').style.display = 'flex'" style="background: linear-gradient(135deg, #3b52ff 0%, #2193b0 100%);">
+                            <i class="fa-solid fa-right-to-bracket"></i> Iniciar Sesión
+                        </button>
+                    </div>
+                </div>
+            `;
+            return;
+        }
+
+        // Si ya inició sesión, renderiza sus archivos normalmente
         const misArchivos = baseDeDatosArchivos.filter(arc => arc.propietario === usuarioLogueado);
         const categoriasOrdenadas = ["documentos", "videos", "audio", "imagenes", "otros"];
         let filasHTML = "";
@@ -101,6 +122,24 @@ function renderizarTarjetas() {
 
     // === VISTA: AGREGAR ===
     if (categoriaActual === "agregar") {
+        // Bloqueo si no ha iniciado sesión
+        if (!sesionUsuario) {
+            contenedor.innerHTML = `
+                <div class="manager-container compact-view" style="text-align: center; padding: 40px 20px;">
+                    <div class="upload-form-card" style="max-width: 500px; margin: 0 auto;">
+                        <i class="fa-solid fa-cloud-lock" style="font-size: 50px; color: #11998e; margin-bottom: 15px;"></i>
+                        <h3 style="margin-bottom: 10px;">¿Quieres subir contenido?</h3>
+                        <p style="color: #aaa; margin-bottom: 20px; font-size: 14px;">Inicia sesión para agregar archivos a la biblioteca y gestionar tu propio contenido.</p>
+                        <button class="btn-upload-submit" onclick="document.getElementById('login-modal').style.display = 'flex'" style="background: linear-gradient(135deg, #11998e 0%, #1ee596 100%);">
+                            <i class="fa-solid fa-right-to-bracket"></i> Iniciar Sesión
+                        </button>
+                    </div>
+                </div>
+            `;
+            return;
+        }
+
+        // Si ya inició sesión, muestra el formulario de subida
         contenedor.innerHTML = `
             <div class="manager-container compact-view">
                 <div class="upload-form-card">
@@ -309,6 +348,9 @@ async function ejecutarAutenticacion(payload) {
                 
                 actualizarBotonUsuario();
                 aplicarRestriccionesDeModulo();
+                
+                // NUEVO: Al iniciar sesión exitosamente, fuerza el re-renderizado de la vista para mostrar el contenido desbloqueado
+                renderizarTarjetas();
             } else {
                 alert("¡Registro exitoso! Ya puedes iniciar sesión.");
                 document.getElementById("register-modal").style.display = "none";

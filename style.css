@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght=400;500;600&display=swap');
 
 * {
     margin: 0;
@@ -17,7 +17,6 @@ header {
     color: blueviolet; 
 }
 
-/* --- DISTRIBUCIÓN DEL HEADER TOP --- */
 .header-top {
     width: 100%;
     max-width: 800px; 
@@ -32,7 +31,6 @@ header {
     gap: 12px;
 }
 
-/* --- SECCIÓN DEL ENCABEZADO (HERO) --- */
 .hero-section {
     background: linear-gradient(135deg, #a832ff 0%, #3b52ff 100%);
     padding: 30px 50px;
@@ -52,7 +50,6 @@ header {
     font-weight: 600;
 }
 
-/* --- BARRA DE BÚSQUEDA --- */
 #search-container {
     position: relative;
     width: 100%;
@@ -146,11 +143,10 @@ header {
 #content {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); 
-    gap: 25px;            
+    gap: 25px;             
     padding: 0 50px 50px 50px; 
 }
 
-/* --- DISEÑO DE CADA TARJETA --- */
 .video-card {
     background-color: #000000; 
     border-radius: 16px;       
@@ -193,7 +189,6 @@ iframe {
     background-color: #000; 
 }
 
-/* --- BOTÓN MODO OSCURO E INGRESO --- */
 #dark-mode-toggle, #auth-modal-trigger {
     background: rgba(255, 255, 255, 0.2);
     border: none;
@@ -224,51 +219,27 @@ iframe {
     transform: scale(1.03);
 }
 
-/* --- SOPORTE DEL MODO OSCURO GLOBAL --- */
-body.dark-mode {
-    background-color: #121212; 
-    color: #f1f3f7;
-}
-
-body.dark-mode .btn-category:not(.active) {
-    background-color: #1e1e1e;
-    color: #e0e0e0;
-}
-
-body.dark-mode .btn-category:not(.active) i {
-    color: #b0b0b0;
-}
-
-body.dark-mode .btn-category:not(.active) .badge {
-    color: #888888;
-}
-
-body.dark-mode .btn-category:not(.active):hover {
-    background-color: #2a2a2a;
-}
-
-body.dark-mode #search-container input {
-    background-color: #1e1e1e;
-    color: white;
-}
-
-body.dark-mode #search-container input::placeholder {
-    color: #777;
-}
-
-/* --- VENTANA FLOTANTE (VIDEO MODAL) --- */
-.modal {
+.modal, .auth-modal {
     display: none; 
     position: fixed;
-    z-index: 1000;
     left: 0;
     top: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0, 0, 0, 0.85);
-    backdrop-filter: blur(5px);
     align-items: center;
     justify-content: center;
+}
+
+.modal {
+    z-index: 1000;
+    background-color: rgba(0, 0, 0, 0.85);
+    backdrop-filter: blur(5px);
+}
+
+.auth-modal {
+    z-index: 2000; /* Prioridad superior para login/registro/cuenta */
+    background-color: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(8px);
 }
 
 .modal-content {
@@ -279,44 +250,6 @@ body.dark-mode #search-container input::placeholder {
     padding: 10px;
     position: relative;
     box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-}
-
-.close-modal {
-    position: absolute;
-    top: -40px;
-    right: 10px;
-    color: white;
-    font-size: 30px;
-    font-weight: bold;
-    cursor: pointer;
-    transition: color 0.2s;
-}
-
-.close-modal:hover {
-    color: #a832ff;
-}
-
-.video-container {
-    width: 100%;
-    aspect-ratio: 16/9; 
-    background: #000;
-    border-radius: 8px;
-    overflow: hidden;
-}
-
-/* --- NUEVAS COMPONENTES: VENTANAS DE INICIO Y REGISTRO DE CUENTAS (AUTH MODALS) --- */
-.auth-modal {
-    display: none; /* Controlado desde JS */
-    position: fixed;
-    z-index: 2000; /* Prioridad superior */
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.6);
-    backdrop-filter: blur(8px);
-    align-items: center;
-    justify-content: center;
 }
 
 .auth-modal-content {
@@ -331,24 +264,41 @@ body.dark-mode #search-container input::placeholder {
     transition: background-color 0.3s, color 0.3s;
 }
 
-body.dark-mode .auth-modal-content {
-    background-color: #1e1e1e;
-    color: #f1f3f7;
+.close-modal, .close-auth-modal {
+    position: absolute;
+    font-weight: bold;
+    cursor: pointer;
+    transition: color 0.2s;
+}
+
+.close-modal {
+    top: -40px;
+    right: 10px;
+    color: white;
+    font-size: 30px;
+}
+
+.close-modal:hover {
+    color: #a832ff;
 }
 
 .close-auth-modal {
-    position: absolute;
     right: 22px;
     top: 15px;
     font-size: 28px;
     color: #aaa;
-    cursor: pointer;
-    font-weight: bold;
-    transition: color 0.2s;
 }
 
 .close-auth-modal:hover {
     color: #ff4b2b;
+}
+
+.video-container {
+    width: 100%;
+    aspect-ratio: 16/9; 
+    background: #000;
+    border-radius: 8px;
+    overflow: hidden;
 }
 
 .auth-header {
@@ -367,20 +317,11 @@ body.dark-mode .auth-modal-content {
     margin-bottom: 4px;
 }
 
-body.dark-mode .auth-header h2 {
-    color: white;
-}
-
 .auth-header p {
     font-size: 13px;
     color: #777;
 }
 
-body.dark-mode .auth-header p {
-    color: #aaa;
-}
-
-/* Cajas de inputs modales */
 .auth-input-group {
     position: relative;
     margin-bottom: 16px;
@@ -406,22 +347,11 @@ body.dark-mode .auth-header p {
     transition: all 0.2s ease;
 }
 
-body.dark-mode .auth-input-group input {
-    background-color: #2a2a2a;
-    border-color: #3a3a3a;
-    color: white;
-}
-
 .auth-input-group input:focus {
     border-color: #a232ff;
     background-color: white;
 }
 
-body.dark-mode .auth-input-group input:focus {
-    background-color: #222;
-}
-
-/* Botón de envío */
 .btn-auth-submit {
     width: 100%;
     padding: 12px;
@@ -447,10 +377,6 @@ body.dark-mode .auth-input-group input:focus {
     color: #555;
 }
 
-body.dark-mode .auth-footer {
-    color: #bbb;
-}
-
 .auth-footer a {
     color: #3b52ff;
     text-decoration: none;
@@ -461,7 +387,6 @@ body.dark-mode .auth-footer {
     text-decoration: underline;
 }
 
-/* Contenedor del perfil y menú desplegable */
 .user-menu-container {
     position: relative;
 }
@@ -499,145 +424,9 @@ body.dark-mode .auth-footer {
     border-radius: 8px;
 }
 
-/* Clases específicas para el nuevo botón Agregar */
-.icon-agregar {
-    color: #38ef7d;
-}
+.icon-agregar { color: #38ef7d; }
+.text-agregar { font-weight: 600; }
 
-.text-agregar {
-    font-weight: 600;
-}
-
-/* --- SOPORTE DE MODO OSCURO PARA EL MENÚ DESPLEGABLE --- */
-body.dark-mode .dropdown-content {
-    background-color: #1e1e1e !important;
-    box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.5) !important;
-}
-
-body.dark-mode .dropdown-content a:hover {
-    background-color: #2a2a2a;
-}
-
-/* --- COMPONENTE GESTOR SIMPLIFICADO --- */
-.manager-container {
-    grid-column: 1 / -1;
-    max-width: 650px;
-    width: 100%;
-    margin: 20px auto;
-    display: flex;
-    flex-direction: column;
-    gap: 30px;
-}
-
-/* Formulario Limpio */
-.upload-form-card {
-    background-color: white;
-    padding: 25px 30px;
-    border-radius: 20px;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.05);
-    transition: background-color 0.3s;
-}
-
-.upload-form-card h3 {
-    font-size: 18px;
-    margin-bottom: 20px;
-    color: #333;
-}
-
-.form-group {
-    margin-bottom: 15px;
-    display: flex;
-    flex-direction: column;
-    text-align: left;
-}
-
-.form-group label {
-    font-size: 13px;
-    font-weight: 500;
-    margin-bottom: 6px;
-    color: #555;
-}
-
-.form-group input[type="text"],
-.form-group select {
-    width: 100%;
-    padding: 10px 16px;
-    font-size: 14px;
-    border-radius: 50px;
-    border: 1px solid #e1e4e8;
-    background-color: #f8f9fa;
-    outline: none;
-}
-
-/* Estilo para botón de archivo oculto */
-.file-label-btn {
-    background-color: #11998e;
-    color: white;
-    padding: 10px 20px;
-    border-radius: 50px;
-    cursor: pointer;
-    font-size: 13px;
-    display: inline-block;
-    align-self: flex-start;
-}
-
-/* Estructura de Filas de Archivos */
-.category-row {
-    background: white;
-    padding: 20px;
-    border-radius: 16px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.02);
-}
-
-.category-row h4 {
-    font-size: 15px;
-    color: #555;
-    margin-bottom: 12px;
-    border-bottom: 1px solid #f1f3f7;
-    padding-bottom: 6px;
-}
-
-.user-file-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 8px 15px;
-    background-color: #f8f9fa;
-    border-radius: 50px;
-    margin-bottom: 8px;
-    font-size: 13px;
-}
-
-.btn-delete-file {
-    background: none;
-    border: none;
-    color: #ff4b2b;
-    cursor: pointer;
-    font-weight: 600;
-    font-size: 13px;
-}
-
-/* SOPORTE MODO OSCURO MÁS SIMPLE */
-body.dark-mode .upload-form-card,
-body.dark-mode .category-row {
-    background-color: #1e1e1e;
-}
-
-body.dark-mode .upload-form-card h3,
-body.dark-mode .category-row h4,
-body.dark-mode .form-group label {
-    color: #f1f3f7;
-}
-
-body.dark-mode .form-group input,
-body.dark-mode .form-group select,
-body.dark-mode .user-file-item {
-    background-color: #2a2a2a;
-    border-color: #3a3a3a;
-    color: white;
-}
-
-/* --- COMPONENTE GESTOR GENERAL (MIS ARCHIVOS Y AGREGAR) --- */
 .manager-container {
     grid-column: 1 / -1;
     max-width: 700px;
@@ -658,15 +447,9 @@ body.dark-mode .user-file-item {
     color: var(--color-activo, #3b52ff);
 }
 
-.manager-title i {
-    margin-right: 5px;
-}
+.manager-title i { margin-right: 5px; }
+.manager-title strong { font-weight: 600; }
 
-.manager-title strong {
-    font-weight: 600;
-}
-
-/* Formulario Limpio de Carga */
 .upload-form-card {
     background-color: white;
     padding: 25px 30px;
@@ -681,9 +464,7 @@ body.dark-mode .user-file-item {
     color: #333;
 }
 
-.upload-form-card h3 i {
-    margin-right: 5px;
-}
+.upload-form-card h3 i { margin-right: 5px; }
 
 .form-group {
     margin-bottom: 15px;
@@ -717,7 +498,6 @@ body.dark-mode .user-file-item {
     background-color: white;
 }
 
-/* Botón de Archivo Oculto */
 .file-label-btn {
     background-color: #11998e;
     color: white;
@@ -730,13 +510,8 @@ body.dark-mode .user-file-item {
     transition: background-color 0.2s;
 }
 
-.file-label-btn:hover {
-    background-color: #0d7c73;
-}
-
-.file-label-btn i {
-    margin-right: 5px;
-}
+.file-label-btn:hover { background-color: #0d7c73; }
+.file-label-btn i { margin-right: 5px; }
 
 .file-status-text {
     font-size: 12px;
@@ -745,7 +520,6 @@ body.dark-mode .user-file-item {
     font-style: italic;
 }
 
-/* Estructura de Filas de "Mis Archivos" */
 .category-row {
     background: white;
     padding: 20px;
@@ -764,22 +538,9 @@ body.dark-mode .user-file-item {
     letter-spacing: 0.5px;
 }
 
-.category-row h4 i {
-    margin-right: 5px;
-}
-
-.row-products-list {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-}
-
-.empty-row-text {
-    color: #888;
-    font-size: 12px;
-    font-style: italic;
-    padding-left: 10px;
-}
+.category-row h4 i { margin-right: 5px; }
+.row-products-list { display: flex; flex-direction: column; gap: 4px; }
+.empty-row-text { color: #888; font-size: 12px; font-style: italic; padding-left: 10px; }
 
 .user-file-item {
     display: flex;
@@ -793,14 +554,8 @@ body.dark-mode .user-file-item {
     transition: background-color 0.2s;
 }
 
-.user-file-item:hover {
-    background-color: #f1f3f7;
-}
-
-.user-file-item small {
-    color: #888;
-    margin-left: 5px;
-}
+.user-file-item:hover { background-color: #f1f3f7; }
+.user-file-item small { color: #888; margin-left: 5px; }
 
 .btn-delete-file {
     background: none;
@@ -815,39 +570,8 @@ body.dark-mode .user-file-item {
     transition: opacity 0.2s;
 }
 
-.btn-delete-file:hover {
-    opacity: 0.8;
-}
+.btn-delete-file:hover { opacity: 0.8; }
 
-/* --- SOPORTE DE MODO OSCURO AUTOMÁTICO --- */
-body.dark-mode .upload-form-card,
-body.dark-mode .category-row {
-    background-color: #1e1e1e;
-}
-
-body.dark-mode .upload-form-card h3,
-body.dark-mode .category-row h4,
-body.dark-mode .form-group label {
-    color: #f1f3f7;
-}
-
-body.dark-mode .category-row h4 {
-    border-bottom-color: #2a2a2a;
-}
-
-body.dark-mode .form-group input[type="text"],
-body.dark-mode .form-group select,
-body.dark-mode .user-file-item {
-    background-color: #2a2a2a;
-    border-color: #3a3a3a;
-    color: white;
-}
-
-body.dark-mode .user-file-item:hover {
-    background-color: #333;
-}
-
-/* Botón Principal de Envío del Formulario (Corregido) */
 .btn-upload-submit {
     width: 100%;
     padding: 12px;
@@ -872,13 +596,41 @@ body.dark-mode .user-file-item:hover {
     box-shadow: 0 6px 15px rgba(17, 153, 142, 0.3);
 }
 
-.btn-upload-submit:active {
-    transform: translateY(0);
+.btn-upload-submit:active { transform: translateY(0); }
+
+.account-modal-overlay {
+    display: none;
 }
 
-/* Ajuste del botón enviar para Modo Oscuro */
-body.dark-mode .btn-upload-submit {
-    background: linear-gradient(135deg, #0f837a 0%, #19c27f 100%);
+.account-modal-container {
+    max-width: 700px;
+    max-height: 85vh;
+    overflow-y: auto;
+}
+
+.account-modal-section {
+    display: none;
+    border: none !important;
+    padding: 0 !important;
+    margin-bottom: 20px;
+}
+
+.account-btn-group {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-top: 15px;
+}
+
+.admin-modal-section {
+    display: none;
+    border: none !important;
+    padding: 20px 0 0 0 !important;
+    border-top: 1px solid #333 !important;
+}
+
+.admin-table-container {
+    margin-top: 15px;
 }
 
 .account-dashboard-container {
@@ -887,9 +639,7 @@ body.dark-mode .btn-upload-submit {
     padding: 0 20px;
 }
 
-/* Caja de Mi Cuenta */
 .account-profile-box {
-    display: none; /* Se controla con JS */
     padding: 20px;
     background: #1e1e1e;
     border-radius: 12px;
@@ -897,24 +647,10 @@ body.dark-mode .btn-upload-submit {
     border: 1px solid #333;
 }
 
-.account-title {
-    color: #fff;
-    margin-bottom: 5px;
-}
+.account-title { color: #fff; margin-bottom: 5px; }
+.account-subtitle { color: #888; font-size: 14px; margin-bottom: 15px; }
+.account-divider { border: 0; border-top: 1px solid #222; margin-bottom: 15px; }
 
-.account-subtitle {
-    color: #888;
-    font-size: 14px;
-    margin-bottom: 15px;
-}
-
-.account-divider {
-    border: 0;
-    border-top: 1px solid #222;
-    margin-bottom: 15px;
-}
-
-/* Botones de acción */
 .btn-account {
     color: white;
     border: none;
@@ -926,27 +662,13 @@ body.dark-mode .btn-upload-submit {
     transition: background 0.2s ease-in-out;
 }
 
-.btn-cyan {
-    background: #00b4db;
-}
-.btn-cyan:hover {
-    background: #0093b3;
-}
+.btn-cyan { background: #00b4db; }
+.btn-cyan:hover { background: #0093b3; }
+.btn-danger { background: #ff4b2b; }
+.btn-danger:hover { background: #d93e20; }
+.icon-cyan { color: #00b4db; }
 
-.btn-danger {
-    background: #ff4b2b;
-}
-.btn-danger:hover {
-    background: #d93e20;
-}
-
-.icon-cyan {
-    color: #00b4db;
-}
-
-/* Panel de Administración */
 .admin-panel-box {
-    display: none; /* Se controla con JS */
     padding: 20px;
     background: #181818;
     border: 2px solid #ff4b2b;
@@ -954,17 +676,9 @@ body.dark-mode .btn-upload-submit {
     margin: 20px 0;
 }
 
-.admin-title {
-    color: #ff4b2b;
-    margin-bottom: 5px;
-}
+.admin-title { color: #ff4b2b; margin-bottom: 5px; }
+.admin-subtitle { color: #aaa; font-size: 14px; }
 
-.admin-subtitle {
-    color: #aaa;
-    font-size: 14px;
-}
-
-/* Tabla de Usuarios */
 .table-responsive {
     overflow-x: auto;
     margin-top: 15px;
@@ -982,8 +696,7 @@ body.dark-mode .btn-upload-submit {
     color: #fff;
 }
 
-.admin-table th, 
-.admin-table td {
+.admin-table th, .admin-table td {
     padding: 12px;
     border-bottom: 1px solid #222;
 }
@@ -999,3 +712,72 @@ body.dark-mode .btn-upload-submit {
 .text-center {
     text-align: center;
 }
+
+body.dark-mode {
+    background-color: #121212; 
+    color: #f1f3f7;
+}
+
+body.dark-mode .btn-category:not(.active) {
+    background-color: #1e1e1e;
+    color: #e0e0e0;
+}
+
+body.dark-mode .btn-category:not(.active) i { color: #b0b0b0; }
+body.dark-mode .btn-category:not(.active) .badge { color: #888888; }
+body.dark-mode .btn-category:not(.active):hover { background-color: #2a2a2a; }
+
+body.dark-mode #search-container input {
+    background-color: #1e1e1e;
+    color: white;
+}
+
+body.dark-mode #search-container input::placeholder { color: #777; }
+
+body.dark-mode .auth-modal-content {
+    background-color: #1e1e1e;
+    color: #f1f3f7;
+}
+
+body.dark-mode .auth-header h2 { color: white; }
+body.dark-mode .auth-header p { color: #aaa; }
+
+body.dark-mode .auth-input-group input {
+    background-color: #2a2a2a;
+    border-color: #3a3a3a;
+    color: white;
+}
+
+body.dark-mode .auth-input-group input:focus { background-color: #222; }
+body.dark-mode .auth-footer { color: #bbb; }
+
+body.dark-mode .dropdown-content {
+    background-color: #1e1e1e !important;
+    box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.5) !important;
+}
+
+body.dark-mode .dropdown-content a:hover { background-color: #2a2a2a; }
+
+body.dark-mode .upload-form-card,
+body.dark-mode .category-row {
+    background-color: #1e1e1e;
+}
+
+body.dark-mode .upload-form-card h3,
+body.dark-mode .category-row h4,
+body.dark-mode .form-group label {
+    color: #f1f3f7;
+}
+
+body.dark-mode .category-row h4 { border-bottom-color: #2a2a2a; }
+
+body.dark-mode .form-group input[type="text"],
+body.dark-mode .form-group select,
+body.dark-mode .user-file-item {
+    background-color: #2a2a2a;
+    border-color: #3a3a3a;
+    color: white;
+}
+
+body.dark-mode .user-file-item:hover { background-color: #333; }
+body.dark-mode .btn-upload-submit { background: linear-gradient(135deg, #0f837a 0%, #19c27f 100%); }

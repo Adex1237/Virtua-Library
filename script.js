@@ -98,7 +98,7 @@ function renderizarTarjetas() {
                             : archivosDeEstaCat.map(archivo => `
                                 <div class="user-file-item">
                                     <span><i class="fa-solid ${iconoActual}" style="margin-right: 8px; opacity: 0.7;"></i>${archivo.nombre} <small>(${archivo.tamano})</small></span>
-                                    <button class="btn-delete-file" onclick="eliminarArchivoSimulado('${archivo.id}')">
+                                    <button class="btn-delete-file" onclick="eliminarArchivoReal('${archivo.id}')">
                                         <i class="fa-solid fa-trash-can"></i> Eliminar
                                     </button>
                                 </div>
@@ -203,7 +203,7 @@ function renderizarTarjetas() {
         card.style.cursor = "pointer";
 
         let elementoVisual = "";
-        let accionClick = ""; // Nueva variable para controlar el click limpio
+        let accionClick = ""; 
         
         if (archivo.categoria === "imagenes") {
             const urlPreviewImagen = `https://drive.google.com/file/d/${archivo.id}/preview`;
@@ -228,10 +228,14 @@ function renderizarTarjetas() {
             accionClick = `abrirReproductorAudio('${archivo.id}', '${archivo.nombre.replace(/'/g, "\\'")}')`;
         } else {
             const urlPreview = `https://drive.google.com/file/d/${archivo.id}/preview`;
-            elementoVisual = `<iframe src="${urlPreview}" scrolling="no"></iframe>`;
+            elementoVisual = `
+                <div style="width:100%; height:180px; position:relative; overflow:hidden; border-radius:16px 16px 0 0;">
+                    <iframe src="${urlPreview}" scrolling="no" style="width:100%; height:100%; border:none; pointer-events: none;"></iframe>
+                    <div style="position:absolute; top:0; left:0; width:100%; height:100%; background:transparent;"></div>
+                </div>`;
+            accionClick = `abrirVisorDocumento('${archivo.id}', '${archivo.nombre.replace(/'/g, "\\'")}')`;
         }
 
-        // Asignamos la acción directamente a la tarjeta
         if (accionClick) {
             card.setAttribute("onclick", accionClick);
         }
@@ -248,6 +252,145 @@ function renderizarTarjetas() {
     });
 }
 
+function verificarRolYDesplegarInterfaz(rolUsuario, nombreUsuario) {
+    const seccionMiCuenta = document.getElementById("seccion-mi-cuenta");
+    const panelAdmin = document.getElementById("panel-admin-exclusivo");
+
+    if (nombreUsuario) {
+        if (seccionMiCuenta) seccionMiCuenta.style.display = "block";
+        
+        if (rolUsuario === "Administrador" && panelAdmin) {
+            panelAdmin.style.display = "block";
+            cargarUsuariosAdmin();
+        } else if (panelAdmin) {
+            panelAdmin.style.display = "none";
+        }
+    } else {
+        if (seccionMiCuenta) seccionMiCuenta.style.display = "none";
+        if (panelAdmin) panelAdmin.style.display = "none";
+        // Si cierra sesión, nos aseguramos de ocultar el modal completo por seguridad
+        const modalCuenta = document.getElementById("account-modal");
+        if(modalCuenta) modalCuenta.style.display = "none";
+    }
+}
+
+// Modificar contraseña del usuario activo (Cifrado SHA-256 + SALT en el Backend)
+async function solicitarCambioContrasena() {
+    const usuarioActivo = localStorage.getItem("sesion-usuario");
+    if (!usuarioActivo) return alert("Debes iniciar sesión para realizar esta acción.");
+
+    const nuevaClave = prompt("Introduce tu nueva contraseña:");
+    if (!nuevaClave || nuevaClave.trim() === "") return alert("Operación cancelada o contraseña no válida.");
+
+    try {
+        await fetch(URL_BACKEND_BASH, {
+            method: "POST",
+            headers: { "Content-Type": "text/plain" },
+            body: JSON.stringify({
+                accion: "cambiarClave",
+                usuario: usuarioActivo,
+                nuevaClave: nuevaClave.trim()
+            })
+        });
+        
+        alert("Tu contraseña ha sido actualizada con éxito en la base de datos.");
+    } catch (error) {
+        console.error("Error al cambiar clave:", error);
+        alert("Hubo un error de comunicación al cambiar la contraseña.");
+    }
+}
+
+// Permite al usuario activo borrar su propia cuenta
+async function autoEliminarCuenta() {
+    const usuarioActivo = localStorage.getItem("sesion-usuario");
+    if (!usuarioActivo) return alert("No hay una sesión activa.");
+
+    const confirmar = confirm(`¿ATENCIÓN! ¿Estás seguro de que deseas eliminar permanentemente tu cuenta "${usuarioActivo}"? Esta acción no se puede deshacer.`);
+    if (!confirmar) return;
+
+    try {
+        await fetch(URL_BACKEND_BASH, {
+            method: "POST",
+            headers: { "Content-Type": "text/plain" },
+            body: JSON.stringify({
+                accion: "eliminarUsuario",
+                usuarioAEliminar: usuarioActivo
+            })
+        });
+
+        alert("Tu cuenta ha sido eliminada correctamente. Redireccionando...");
+        
+        localStorage.removeItem("sesion-usuario");
+        localStorage.removeItem("sesion-rol");
+        location.reload();
+    } catch (error) {
+        console.error("Error al autoeliminar cuenta:", error);
+        alert("Ocurrió un error al intentar eliminar la cuenta.");
+    }
+}
+
+// Cargar todos los usuarios (Llamada GET al script de usuarios)
+async function cargarUsuariosAdmin() {
+    const tabla = document.getElementById("tabla-usuarios-admin");
+    if (!tabla) return;
+    
+    tabla.innerHTML = `<tr><td colspan="4" class="text-center" style="color: #888;"><i class="fa-solid fa-spinner fa-spin"></i> Cargando usuarios desde la base de datos...</td></tr>`;
+
+    try {
+        const respuesta = await fetch(`${URL_BACKEND_BASH}?accion=listarUsuarios`);
+        const datos = await respuesta.json();
+
+        if (datos.estatus === "ok") {
+            tabla.innerHTML = "";
+            const usuarioLogueado = localStorage.getItem("sesion-usuario");
+
+            datos.usuarios.forEach(user => {
+                const esMismoUsuario = user.usuario === usuarioLogueado;
+                const botonAccion = esMismoUsuario ? 
+                    `<span style="color:#555; font-size:13px; font-style:italic;">Sesión Activa</span>` : 
+                    `<button onclick="eliminarUsuarioDesdeAdmin('${user.usuario}')" class="btn-account btn-danger" style="padding: 5px 10px; font-size:13px;"><i class="fa-solid fa-trash-can"></i> Eliminar</button>`;
+
+                tabla.innerHTML += `
+                    <tr>
+                        <td>${user.usuario}</td>
+                        <td>${user.correo || 'No registrado'}</td>
+                        <td><span style="background: ${user.rol === 'Administrador' ? '#ff4b2b' : '#333'}; padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: bold;">${user.rol}</span></td>
+                        <td class="text-center">${botonAccion}</td>
+                    </tr>
+                `;
+            });
+        } else {
+            tabla.innerHTML = `<tr><td colspan="4" class="text-center" style="color: #ff4b2b;">No se pudo cargar la lista: ${datos.mensaje}</td></tr>`;
+        }
+    } catch (error) {
+        console.error("Error al listar usuarios:", error);
+        tabla.innerHTML = `<tr><td colspan="4" class="text-center" style="color: #ff4b2b;">Error de red al obtener usuarios.</td></tr>`;
+    }
+}
+
+// Eliminar un usuario específico desde el panel de administración
+async function eliminarUsuarioDesdeAdmin(nombreUsuarioAEliminar) {
+    const confirmar = confirm(`¿Estás seguro de que deseas eliminar por completo al usuario "${nombreUsuarioAEliminar}" del sistema? El acceso le será revocado de inmediato.`);
+    if (!confirmar) return;
+
+    try {
+        await fetch(URL_BACKEND_BASH, {
+            method: "POST",
+            headers: { "Content-Type": "text/plain" },
+            body: JSON.stringify({
+                accion: "eliminarUsuario",
+                usuarioAEliminar: nombreUsuarioAEliminar
+            })
+        });
+
+        alert(`Se ha enviado la orden de eliminación para: ${nombreUsuarioAEliminar}`);
+        setTimeout(cargarUsuariosAdmin, 1000);
+    } catch (error) {
+        console.error("Error al eliminar usuario desde Admin:", error);
+        alert("Error de conexión al procesar la eliminación.");
+    }
+}
+
 function abrirReproductorAudio(idArchivo, nombreAudio) {
     const modal = document.getElementById("video-modal");
     if (!modal) {
@@ -260,8 +403,15 @@ function abrirReproductorAudio(idArchivo, nombreAudio) {
         return;
     }
     
-    // Insertamos el iframe de previsualización de Drive para el audio
     container.innerHTML = `<iframe src="https://drive.google.com/file/d/${idArchivo}/preview" style="width:100%; height:100%; border:none;" allow="autoplay"></iframe>`;
+    modal.style.display = "flex";
+}
+
+function abrirVisorDocumento(idArchivo, nombreDoc) {
+    const modal = document.getElementById("video-modal");
+    if (!modal) return;
+    const container = modal.querySelector(".video-container");
+    container.innerHTML = `<iframe src="https://drive.google.com/file/d/${idArchivo}/preview" style="width:100%; height:100%; border:none;"></iframe>`;
     modal.style.display = "flex";
 }
 
@@ -280,12 +430,10 @@ function procesarSubidaArchivoReal(evento) {
     
     const archivo = inputArchivo.files[0];
     
-    // Bloquear botón y mostrar spinner de carga
     boton.disabled = true;
     boton.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Subiendo archivo...`;
     
     const lector = new FileReader();
-    // Leemos el archivo como DataURL para extraer el Base64 limpio
     lector.readAsDataURL(archivo);
     
     lector.onload = async () => {
@@ -293,41 +441,64 @@ function procesarSubidaArchivoReal(evento) {
             const cadenaBase64 = lector.result.split(",")[1];
             const propietarioActivo = localStorage.getItem("sesion-usuario") || "Administrador";
             
-            // Reconstruimos el nombre con su extensión real (.pdf, .jpg, etc.)
             const extension = archivo.name.includes('.') ? archivo.name.substring(archivo.name.lastIndexOf('.')) : '';
             const nombreCompleto = nombreInput + extension;
 
-            // Pasamos las variables de texto en la URL para que Google Apps Script las reciba en e.parameter
             const urlConParametros = `${URL_API_ARCHIVOS}?nombreArchivo=${encodeURIComponent(nombreCompleto)}&categoria=${categoriaInput}&tipoMime=${encodeURIComponent(archivo.type)}&propietario=${encodeURIComponent(propietarioActivo)}`;
             
-            // Enviamos únicamente el texto del archivo en el cuerpo (text/plain) para evitar conflictos de CORS
-            const respuesta = await fetch(urlConParametros, {
+            await fetch(urlConParametros, {
                 method: "POST",
-                mode: "no-cors", // Evita que el navegador bloquee la petición por seguridad de dominios
+                mode: "no-cors", 
                 headers: {
                     "Content-Type": "text/plain"
                 },
                 body: cadenaBase64
             });
             
-            // Al usar "no-cors", el navegador oculta la respuesta por privacidad. 
-            // Añadimos una espera de 3.5 segundos para dar tiempo a que Google registre el archivo e indexe el ID en Drive.
-            setTimeout(async () => {
-                alert("¡Archivo enviado con éxito! Se ha registrado en tu biblioteca virtual.");
-                await cargarDatosDesdeDrive(); // Recarga la lista de tarjetas
-                
-                // Redirecciona automáticamente a la pestaña "Todos"
-                const btnTodos = document.querySelector('[data-category="todos"]');
-                if (btnTodos) btnTodos.click();
-            }, 3500);
+            alert("¡Archivo enviado al servidor! Puede tardar unos segundos en reflejarse.");
+            
+            document.getElementById("form-subir-archivo").reset();
+            if(document.getElementById('simple-file-text')) {
+                document.getElementById('simple-file-text').textContent = "Ningún archivo seleccionado";
+            }
+            
+            cargarDatosDesdeDrive();
 
         } catch (error) {
             console.error("Error en la subida:", error);
-            alert("Hubo un problema de comunicación al intentar enviar el archivo.");
+            alert("Hubo un problema físico de red al intentar conectar con Google.");
+        } finally {
             boton.disabled = false;
             boton.innerHTML = `<i class="fa-solid fa-arrow-up-from-bracket"></i> Subir Archivo Real`;
         }
     };
+}
+
+async function eliminarArchivoReal(idArchivo) {
+    const usuarioLogueado = localStorage.getItem("sesion-usuario");
+    if (!usuarioLogueado) {
+        alert("Debes tener una sesión activa para eliminar archivos.");
+        return;
+    }
+
+    const confirmar = confirm("¿Estás seguro de que deseas eliminar este archivo de forma permanente?");
+    if (!confirmar) return;
+
+    try {
+        const urlConParametros = `${URL_API_ARCHIVOS}?accion=eliminar&idArchivo=${idArchivo}&propietario=${encodeURIComponent(usuarioLogueado)}`;
+        
+        await fetch(urlConParametros, {
+            method: "POST",
+            mode: "no-cors"
+        });
+
+        alert("Petición de eliminación enviada. El archivo se removerá de tu lista.");
+        await cargarDatosDesdeDrive();
+        
+    } catch (error) {
+        console.error("Error al eliminar el archivo:", error);
+        alert("No se pudo procesar la eliminación debido a un problema de conexión.");
+    }
 }
 
 function abrirVisorImagen(idArchivo, nombreImagen) {
@@ -418,12 +589,11 @@ function inicializarModoOscuro() {
     });
 }
 
-//  Código corregido y seguro para la nube
 async function ejecutarAutenticacion(payload) {
     try {
         const respuesta = await fetch(URL_BACKEND_BASH, {
             method: 'POST',
-            headers: { 'Content-Type': 'text/plain' }, // ¡Cambio clave aquí!
+            headers: { 'Content-Type': 'text/plain' },
             body: JSON.stringify(payload)
         });
         const resultado = await respuesta.json();
@@ -436,7 +606,7 @@ async function ejecutarAutenticacion(payload) {
                 if(document.getElementById("login-modal")) document.getElementById("login-modal").style.display = "none";
                 
                 actualizarBotonUsuario();
-                aplicarRestriccionesDeModulo();
+                verificarRolYDesplegarInterfaz(resultado.rol, resultado.usuario);
                 renderizarTarjetas();
             } else {
                 alert("¡Registro exitoso! Ya puedes iniciar sesión.");
@@ -448,7 +618,7 @@ async function ejecutarAutenticacion(payload) {
         }
     } catch (err) {
         console.error("Error al conectar con la autenticación en la nube:", err);
-        alert("Hubo un problema de comunicación con el servidor de credenciales.");
+        alert("Hubo un problem de comunicación con el servidor de credenciales.");
     }
 }
 
@@ -485,16 +655,21 @@ function aplicarRestriccionesDeModulo() {
 function inicializarModalesAuth() {
     const loginModal = document.getElementById("login-modal");
     const registerModal = document.getElementById("register-modal");
+    const accountModal = document.getElementById("account-modal"); // Vinculamos el nuevo modal flotante
+    
     const btnAbrirLogin = document.getElementById("auth-modal-trigger");
+    const btnAbrirConfig = document.getElementById("btn-abrir-config-cuenta");
     const dropdown = document.getElementById("logout-dropdown");
     const btnCerrarSesion = document.getElementById("btn-cerrar-sesion");
     
     const btnCerrarLogin = document.getElementById("close-login");
     const btnCerrarRegister = document.getElementById("close-register");
+    const btnCerrarAccount = document.getElementById("close-account-modal");
     
     const linkARegistro = document.getElementById("go-to-register");
     const linkALogin = document.getElementById("go-to-login");
 
+    // Abrir Login o alternar el menú desplegable superior
     if(btnAbrirLogin) {
         btnAbrirLogin.addEventListener("click", (e) => {
             e.stopPropagation();
@@ -507,6 +682,16 @@ function inicializarModalesAuth() {
         });
     }
 
+    // NUEVO EVENTO: Abrir la ventana flotante de gestión desde la barra superior
+    if (btnAbrirConfig) {
+        btnAbrirConfig.addEventListener("click", (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            if (dropdown) dropdown.style.display = "none"; // Cierra el dropdown superior
+            if (accountModal) accountModal.style.display = "flex"; // Abre la ventana flotante
+        });
+    }
+
     if(btnCerrarSesion) {
         btnCerrarSesion.addEventListener("click", (e) => {
             e.preventDefault();
@@ -515,7 +700,7 @@ function inicializarModalesAuth() {
             
             if(dropdown) dropdown.style.display = "none";
             actualizarBotonUsuario();
-            aplicarRestriccionesDeModulo();
+            verificarRolYDesplegarInterfaz(null, null);
             
             const btnTodos = document.querySelector('[data-category="todos"]');
             if(btnTodos) btnTodos.click();
@@ -523,12 +708,10 @@ function inicializarModalesAuth() {
         });
     }
 
-    window.addEventListener("click", () => {
-        if(dropdown) dropdown.style.display = "none";
-    });
-
+    // Cerrar modales mediante su respectivo botón "X"
     if(btnCerrarLogin && loginModal) btnCerrarLogin.addEventListener("click", () => loginModal.style.display = "none");
     if(btnCerrarRegister && registerModal) btnCerrarRegister.addEventListener("click", () => registerModal.style.display = "none");
+    if(btnCerrarAccount && accountModal) btnCerrarAccount.addEventListener("click", () => accountModal.style.display = "none");
 
     if(linkARegistro && loginModal && registerModal) {
         linkARegistro.addEventListener("click", (e) => {
@@ -566,9 +749,12 @@ function inicializarModalesAuth() {
         });
     }
 
+    // Cerrar haciendo clic afuera de las ventanas flotantes
     window.addEventListener("click", (e) => {
+        if(dropdown) dropdown.style.display = "none";
         if (e.target === loginModal) loginModal.style.display = "none";
         if (e.target === registerModal) registerModal.style.display = "none";
+        if (e.target === accountModal) accountModal.style.display = "none";
     });
 }
 
@@ -581,4 +767,8 @@ document.addEventListener("DOMContentLoaded", () => {
     inicializarModalesAuth();
     aplicarRestriccionesDeModulo();
     actualizarBotonUsuario(); 
+
+    const usuarioGuardado = localStorage.getItem("sesion-usuario");
+    const rolGuardado = localStorage.getItem("sesion-rol");
+    if (usuarioGuardado && rolGuardado) verificarRolYDesplegarInterfaz(rolGuardado, usuarioGuardado);
 });
